@@ -22,7 +22,7 @@ Schema lives in `src/db/schema.ts`; queries only in `src/lib/queries.ts`; DB cli
 
 ## Commands
 `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm db:generate`, `pnpm db:migrate`,
-`pnpm db:studio`, `pnpm seed [--dry-run] [--only-db] [--only-media]`.
+`pnpm db:studio`, `pnpm db:check`, `pnpm seed [--dry-run] [--only-db] [--only-media]`.
 
 ## Environment variables
 See `.env.example`. `DATABASE_URL`, `R2_*`, `NEXT_PUBLIC_SITE_URL` on Vercel; `EXPORT_DIR` local only.
