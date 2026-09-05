@@ -17,14 +17,43 @@ export async function thumbnail(path: string): Promise<Buffer> {
     .toBuffer();
 }
 
-/** Tiny concurrency pool. */
-export async function pool<T>(items: T[], limit: number, fn: (item: T, index: number) => Promise<void>): Promise<void> {
+/** Tiny concurrency pool. `shouldStop` is consulted before each item so a run can abort early. */
+export async function pool<T>(
+  items: T[],
+  limit: number,
+  fn: (item: T, index: number) => Promise<void>,
+  shouldStop: () => boolean = () => false,
+): Promise<number> {
   let next = 0;
+  let processed = 0;
   const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (next < items.length) {
+    while (next < items.length && !shouldStop()) {
       const i = next++;
       await fn(items[i], i);
+      processed++;
     }
   });
   await Promise.all(workers);
+  return processed;
+}
+
+const NETWORK_ERRORS = /ECONNRESET|ETIMEDOUT|ENOTFOUND|EAI_AGAIN|EPIPE|EADDRNOTAVAIL|ECONNREFUSED|socket hang up|TLS connection|network|timeout/i;
+
+export function isNetworkError(e: unknown): boolean {
+  const msg = e instanceof Error ? `${e.name} ${e.message}` : String(e);
+  return NETWORK_ERRORS.test(msg) || msg.trim() === "Error" || msg.trim() === "";
+}
+
+/** Retries `fn` on network errors with exponential backoff: 1s, 3s, 9s, 27s. */
+export async function withRetry<T>(fn: () => Promise<T>, attempts = 5): Promise<T> {
+  let delay = 1000;
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (attempt >= attempts || !isNetworkError(e)) throw e;
+      await new Promise((r) => setTimeout(r, delay));
+      delay *= 3;
+    }
+  }
 }

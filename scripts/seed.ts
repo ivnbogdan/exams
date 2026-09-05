@@ -15,7 +15,7 @@ import { sql } from "drizzle-orm";
 import { attachment, course, subject } from "@/db/schema";
 import { db } from "@/lib/db";
 import { loadExport } from "./lib/export";
-import { pool, thumbnail, webVersion } from "./lib/media";
+import { pool, thumbnail, webVersion, withRetry } from "./lib/media";
 import { EXPECTED, prepare, type Prepared } from "./lib/prepare";
 import { R2, r2ConfigFromEnv } from "./lib/r2";
 
@@ -147,18 +147,20 @@ async function seedMedia(p: Prepared) {
   let uploaded = 0;
   let skipped = 0;
   let failed = 0;
+  let consecutiveFailures = 0;
+  const MAX_CONSECUTIVE_FAILURES = 8;
   const start = Date.now();
   console.log(`\nMedia: ${all.length} files, ${all.filter((a) => a.kind === "image").length} with derivatives…`);
-  await pool(all, 6, async (a, i) => {
+  const processed = await pool(all, 6, async (a, i) => {
     try {
       const body = readFileSync(a.localPath);
       const put = async (key: string, buf: Buffer, type: string, disposition?: string) => {
-        const existing = await r2.sizeOf(key);
+        const existing = await withRetry(() => r2.sizeOf(key));
         if (existing === buf.length) {
           skipped++;
           return;
         }
-        await r2.put(key, buf, type, disposition);
+        await withRetry(() => r2.put(key, buf, type, disposition));
         uploaded++;
       };
       const disposition =
@@ -170,14 +172,20 @@ async function seedMedia(p: Prepared) {
         await put(a.webKey, await webVersion(a.localPath), "image/webp");
         await put(a.thumbKey, await thumbnail(a.localPath), "image/webp");
       }
+      consecutiveFailures = 0;
     } catch (e) {
       failed++;
-      console.error(`  FAILED ${a.storageKey}: ${(e as Error).message}`);
+      consecutiveFailures++;
+      console.error(`  FAILED ${a.storageKey}: ${(e as Error).message || "(no message)"}`);
     }
-    if ((i + 1) % 50 === 0) console.log(`  ${i + 1}/${all.length} files, ${uploaded} uploaded, ${skipped} skipped`);
-  });
-  console.log(`Media done in ${((Date.now() - start) / 1000).toFixed(0)}s: ${uploaded} uploaded, ${skipped} skipped, ${failed} failed.`);
-  if (failed) process.exitCode = 1;
+    if ((i + 1) % 50 === 0) console.log(`  ${i + 1}/${all.length} files, ${uploaded} uploaded, ${skipped} skipped, ${failed} failed`);
+  }, () => consecutiveFailures >= MAX_CONSECUTIVE_FAILURES);
+  const aborted = consecutiveFailures >= MAX_CONSECUTIVE_FAILURES;
+  console.log(
+    `Media ${aborted ? "ABORTED after " + MAX_CONSECUTIVE_FAILURES + " consecutive failures" : "done"} in ${((Date.now() - start) / 1000).toFixed(0)}s: ` +
+      `${processed}/${all.length} files processed, ${uploaded} objects uploaded, ${skipped} skipped, ${failed} files failed.`,
+  );
+  if (failed || aborted) process.exitCode = 1;
 }
 
 async function main() {
