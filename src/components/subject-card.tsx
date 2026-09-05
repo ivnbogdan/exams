@@ -5,7 +5,8 @@ import { SESSION_LABEL, formatDate } from "@/lib/format";
 
 export function SubjectCard({ subject, course }: { subject: SubjectListItem; course: Pick<Course, "name" | "slug"> }) {
   const href = `/subiect/${subject.legacyId ?? subject.id}`;
-  const meta = [subject.examYear, SESSION_LABEL[subject.session], subject.series, subject.groupName].filter(Boolean).join(" · ");
+  const place = subject.groupName && subject.series && subject.groupName !== subject.series ? `${subject.groupName} ${subject.series}` : subject.groupName || subject.series;
+  const meta = [subject.examYear, SESSION_LABEL[subject.session], place].filter(Boolean).join(" · ");
   return (
     <article className="relative rounded-xl border border-black/10 bg-white p-4 shadow-sm transition hover:shadow-md">
       <p className="text-sm font-semibold text-brand-green">

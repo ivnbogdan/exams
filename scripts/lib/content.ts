@@ -24,7 +24,9 @@ export interface Content {
 export function convertContent(raw: string | null | undefined): Content {
   const withBreaks = (raw ?? "")
     .replace(/\r\n|\r|\n/g, "<br>")
-    .replace(/&nbsp;/gi, " ");
+    .replace(/&nbsp;/gi, " ")
+    // the old site double-encoded some entities ("&amp;amp;"); collapse one level
+    .replace(/&amp;(amp|lt|gt|quot|#\d+);/gi, "&$1;");
   let html = sanitizeHtml(withBreaks, OPTIONS).trim();
   // collapse runs of breaks to at most two, and trim leading/trailing breaks
   html = html

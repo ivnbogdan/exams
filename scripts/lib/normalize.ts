@@ -25,14 +25,10 @@ export function slugify(s: string, max = 60): string {
 export function normalizeProfessor(s: string | null | undefined): string | null {
   const t = (s ?? "").replace(/\s+/g, " ").trim();
   if (!t || t === "-" || t === "?") return null;
+  const cap = (p: string) => (p ? p[0].toUpperCase() + p.slice(1).toLowerCase() : p);
   return t
     .split(" ")
-    .map((w) =>
-      w
-        .split("-")
-        .map((p) => (p ? p[0].toUpperCase() + p.slice(1).toLowerCase() : p))
-        .join("-"),
-    )
+    .map((w) => w.split("-").map((h) => h.split(".").map(cap).join(".")).join("-"))
     .join(" ");
 }
 
