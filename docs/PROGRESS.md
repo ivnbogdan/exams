@@ -10,6 +10,6 @@ Agents: update this file at the end of every stage. Owner: the HUMAN items are i
 | 3 Pages | built: 763 static pages (home, 4 years, master, 88 courses, 663 subjects, sitemap, robots); visual pass pending in Stage 5 | 2026-09-05 | `dynamicParams = false` everywhere, so unknown ids 404 without touching the DB. Neon client retries transient fetch errors during build. |
 | 4 Search | built: MiniSearch over `/search-index.json`, facets, query hints, header quick results | 2026-09-05 | index is a `force-static` route handler |
 | 5 Design | not started | | |
-| 6 Deployment and cutover | blocked on H3, H9, H10 | | |
+| 6 Deployment and cutover | first Vercel build failed: `NEXT_PUBLIC_SITE_URL` on Vercel is not a full URL. Code now tolerates it (adds https://, falls back to the Vercel hostname). Domain steps H5, H6, H10 still pending. | 2026-09-05 | Vercel vars set by the owner are sensitive; agents can only test them by deploying. |
 
 Human actions completed: H1, H2, H3, H4, H8 (project `aptabase/exams`). Next needed: confirm `R2_PUBLIC_BASE_URL` on Vercel is the public r2.dev URL (it is sensitive there, so agents cannot read it); later H5, H6, H10 for the domain.

@@ -5,6 +5,33 @@ function required(name: string): string {
   return v;
 }
 
+/**
+ * Site origin for metadata, sitemap and canonical links. Accepts NEXT_PUBLIC_SITE_URL with or
+ * without a scheme, then falls back to the hostnames Vercel injects, then to localhost, so a
+ * misconfigured variable degrades gracefully instead of failing the build with "Invalid URL".
+ */
+function resolveSiteUrl(): string {
+  const candidates = [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    process.env.VERCEL_URL,
+    "http://localhost:3000",
+  ];
+  for (const raw of candidates) {
+    const c = raw?.trim();
+    if (!c) continue;
+    const withScheme = /^https?:\/\//i.test(c) ? c : `https://${c}`;
+    try {
+      return new URL(withScheme).origin;
+    } catch {
+      // try the next candidate
+    }
+  }
+  return "http://localhost:3000";
+}
+
+const siteUrl = resolveSiteUrl();
+
 export const env = {
   get databaseUrl() {
     return required("DATABASE_URL");
@@ -13,7 +40,7 @@ export const env = {
     return required("R2_PUBLIC_BASE_URL").replace(/\/+$/, "");
   },
   get siteUrl() {
-    return (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+    return siteUrl;
   },
 };
 
