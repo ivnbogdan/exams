@@ -12,7 +12,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "seed": "tsx scripts/seed.ts",
-    "db:check": "tsx scripts/db-check.ts"
+    "db:check": "tsx scripts/db-check.ts",
+    "r2:check": "tsx scripts/r2-check.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1124.0",
