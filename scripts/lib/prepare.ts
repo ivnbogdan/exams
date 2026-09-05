@@ -84,7 +84,7 @@ function uniqueSlug(base: string, taken: Set<string>, fallback: string): string 
 
 async function imageDims(path: string): Promise<{ width: number; height: number } | null> {
   try {
-    const m = await sharp(path).metadata();
+    const m = await sharp(path, { failOn: "none" }).metadata();
     if (!m.width || !m.height) return null;
     const swap = m.orientation !== undefined && m.orientation >= 5;
     return swap ? { width: m.height, height: m.width } : { width: m.width, height: m.height };

@@ -151,7 +151,7 @@ async function seedMedia(p: Prepared) {
   const MAX_CONSECUTIVE_FAILURES = 8;
   const start = Date.now();
   console.log(`\nMedia: ${all.length} files, ${all.filter((a) => a.kind === "image").length} with derivatives…`);
-  const processed = await pool(all, 6, async (a, i) => {
+  const processed = await pool(all, 3, async (a, i) => {
     try {
       const body = readFileSync(a.localPath);
       const put = async (key: string, buf: Buffer, type: string, disposition?: string) => {

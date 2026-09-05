@@ -1,8 +1,13 @@
 /** Image derivatives (PLAN 6.11). EXIF rotation is applied before resizing. */
 import sharp from "sharp";
 
+// Keep memory flat: no libvips operation cache, and few internal threads. The pool above the
+// pipeline already provides parallelism; the OS killed a run with the defaults.
+sharp.cache(false);
+sharp.concurrency(1);
+
 export async function webVersion(path: string): Promise<Buffer> {
-  return sharp(path)
+  return sharp(path, { failOn: "none" })
     .rotate()
     .resize({ width: 2000, height: 2000, fit: "inside", withoutEnlargement: true })
     .webp({ quality: 80 })
@@ -10,7 +15,7 @@ export async function webVersion(path: string): Promise<Buffer> {
 }
 
 export async function thumbnail(path: string): Promise<Buffer> {
-  return sharp(path)
+  return sharp(path, { failOn: "none" })
     .rotate()
     .resize({ width: 400, height: 400, fit: "inside", withoutEnlargement: true })
     .webp({ quality: 75 })
