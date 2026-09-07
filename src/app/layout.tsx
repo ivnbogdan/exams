@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { Silkscreen } from "next/font/google";
 import "./globals.css";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { env } from "@/lib/env";
+
+const mark = Silkscreen({ weight: ["400", "700"], subsets: ["latin"], variable: "--font-mark", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
@@ -13,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ro">
+    <html lang="ro" className={mark.variable}>
       <body className="min-h-screen font-sans antialiased">
         <SiteHeader />
         <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs><clipPath id="c"><rect width="64" height="64" rx="14"/></clipPath></defs>
+  <rect width="64" height="64" rx="14" fill="#202020"/>
+  <g clip-path="url(#c)">
+    <g transform="translate(12 12)"><circle r="17" fill="#24909d"/><g transform="rotate(45) scale(0.425)"><path d="M-46 -8 H3 V-22 L31 0 L3 22 V8 H-46 Z" fill="#202020"/></g></g>
+    <g transform="translate(18 54)"><circle r="21" fill="#6ab824"/><g transform="rotate(-45) scale(0.525)"><path d="M-46 -8 H3 V-22 L31 0 L3 22 V8 H-46 Z" fill="#202020"/></g></g>
+    <g transform="translate(54 50)"><circle r="19" fill="#ed9d13"/><g transform="rotate(-135) scale(0.475)"><path d="M-46 -8 H3 V-22 L31 0 L3 22 V8 H-46 Z" fill="#202020"/></g></g>
+  </g>
+</svg>

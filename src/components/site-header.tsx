@@ -15,7 +15,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-20 border-b border-black/10 bg-paper/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3">
         <Link href="/" className="shrink-0" aria-label="exams.ro, prima pagină">
-          <BrandMark className="h-10 w-auto" />
+          <BrandMark className="h-12 w-auto" />
         </Link>
         <nav aria-label="Ani de studiu" className="flex flex-wrap gap-1 text-sm font-medium">
           {NAV.map((n) => (
