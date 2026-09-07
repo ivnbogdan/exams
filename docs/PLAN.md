@@ -10,6 +10,39 @@ Companion file: `docs/HUMAN-ACTIONS.md` is the checklist for the owner. Keep bot
 
 ---
 
+## 0. Status and remaining work (updated 2026-09-07)
+
+Stages 0 to 5 are done. The site is live on Vercel at https://exams-sooty.vercel.app with all
+content, files, search, the mark, dark mode and the hierarchical URLs. What is left is the move to
+the real domain plus a few verifications. Do these in order; each agent step names the human step
+it waits on.
+
+### HUMAN steps (owner), in order
+
+| # | Step | Exact actions | Done when |
+|---|---|---|---|
+| H5 | Cloudflare zone | Create a Cloudflare account. Add a site → `exams.ro` → Free plan. Cloudflare lists two nameservers; note them. | Zone shows "Pending nameserver update" |
+| H6 | Nameservers | First, in the old host's DNS panel, note every existing record (especially MX if email on exams.ro is used) and recreate them in Cloudflare DNS. Then at the registrar replace the nameservers with Cloudflare's two. | `dig NS exams.ro` returns the Cloudflare names (up to 24 h) |
+| H7b | Files domain | Cloudflare → R2 → bucket `exams-ro-files` → Settings → Public access → Custom Domains → Connect domain → `files.exams.ro`. Cloudflare adds the DNS record itself. | Status "Active" next to the domain |
+| H10 | Site domain | Vercel → project `exams` → Settings → Domains → add `exams.ro` and `www.exams.ro`. Add the records Vercel shows into Cloudflare DNS with the proxy OFF (grey cloud). Delete the old A record that points at the old host. | Vercel shows "Valid Configuration" for both |
+| H11 | Old hosting | After A3 passes, cancel the gazduire.ro hosting. Keep `~/repos/personal/exams-ro-export/` as the permanent backup. | — |
+| H12 | Before v2 only | In Vercel → Settings → Environment Variables, re-enter the real `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` (the current values are placeholders from the first setup; v1 never reads them). Delete `EXPORT_DIR`, which is local-only. | — |
+
+### AGENT steps, in order
+
+| # | Waits on | Step | Done when |
+|---|---|---|---|
+| A1 | H7b | Set `R2_PUBLIC_BASE_URL=https://files.exams.ro` on Vercel (Production and Preview: `vercel env rm` then `printf value \| vercel env add`) and in `.env.local`. Redeploy. | `curl -I https://files.exams.ro/subjects/57/1-subeea.jpg` → 200, and a subject page on the deployment shows images from that host |
+| A2 | H10 | Set `NEXT_PUBLIC_SITE_URL=https://exams.ro` on Vercel Production (the stored value is invalid today, so production falls back to the Vercel hostname: its sitemap lists `exams-sooty.vercel.app`). Redeploy. Not before H10: until then `https://exams.ro` still serves the old PHP site. | `/sitemap.xml` and the `og:image` URL on the deployment start with `https://exams.ro` |
+| A3 | H10, A1, A2 | Cutover verification: `curl -I https://exams.ro/` and `https://www.exams.ro/` (200 or a redirect to the apex, valid TLS), five subject pages opened by hand, three downloads, images loading on a phone off Wi-Fi and on Bogdan's Mac (his router blocks `r2.dev` but not `files.exams.ro`). | All pass; note the results in PROGRESS.md |
+| A4 | A1 | Stage 3 acceptance left unmeasured: Lighthouse performance ≥ 90, mobile, on a subject page. PageSpeed's anonymous quota was exhausted on 2026-09-07; retry with `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=<page>&strategy=mobile&category=performance`, or a Chrome performance trace from a network where the files host resolves. | Score recorded in PROGRESS.md; if below 90, act on the report |
+| A5 | — | Lightbox keyboard check by hand: open a gallery, arrow keys move, Escape closes, focus returns to the thumbnail. | Noted in PROGRESS.md |
+| A6 | A3 | Docs: README and HUMAN-ACTIONS mention the live domain; PROGRESS marks Stage 6 done; update the memory notes. | Committed |
+
+Deliberately not done, no action needed: the optional Yanone Kaffeesatz heading font (system sans kept), a compact header variant of the mark (the full banner at 48 px reads fine), and the v2 outline in section 11.
+
+---
+
 ## 1. Goal and scope
 
 Rebuild https://exams.ro as a modern, responsive, read-only site that shows the exam-subject
@@ -309,7 +342,7 @@ Commit `.env.example` with names and placeholder values only.
 
 ## 11. Stages and acceptance criteria
 
-### Stage 0 — Repository skeleton (agent; needs H1, H2)
+### ✅ Stage 0 — Repository skeleton (agent; needs H1, H2)
 - Scaffold Next.js with TypeScript, Tailwind v4, ESLint, App Router, `src/` dir, pnpm.
   If `create-next-app` refuses the non-empty folder, scaffold in a temp dir and move files in.
 - Add `.gitignore` rules from section 6.14, `.env.example`, `README.md` with local setup,
@@ -323,13 +356,13 @@ Commit `.env.example` with names and placeholder values only.
   `.env.example` copied to `.env.local` and a dummy `DATABASE_URL` (build must not need the
   DB yet).
 
-### Stage 1 — Schema and migrations (agent; needs H4)
+### ✅ Stage 1 — Schema and migrations (agent; needs H4)
 - Drizzle schema from section 5, first migration generated and applied to Neon.
 - `src/lib/db.ts` with the Neon serverless driver, `src/lib/queries.ts` stubs.
 - **Accept:** `pnpm db:migrate` succeeds; `drizzle-kit` reports no drift; the three tables
   exist with the indexes.
 
-### Stage 2 — Seed and media pipeline (agent; needs H7, H9 locally)
+### ✅ Stage 2 — Seed and media pipeline (agent; needs H7, H9 locally)
 - `scripts/seed.ts` implementing section 6, run with `tsx`.
 - **Accept:** `pnpm seed --dry-run` prints exactly the numbers in section 4. A full run
   ends with: 88 courses, 708 subjects (45 hidden), 680 attachments, 400 image derivative
@@ -338,25 +371,25 @@ Commit `.env.example` with names and placeholder values only.
   contained `&` and one with diacritics. One phone photo that is rotated in EXIF renders
   upright.
 
-### Stage 3 — Pages (agent)
+### ✅ Stage 3 — Pages (agent)
 - Routes from section 7 with placeholder styling.
 - **Accept:** `pnpm build` generates 663 subject pages and 88 course pages; `/subiect/<id>`
   for a hidden subject returns 404; a subject with 10 attachments shows a gallery and a
   download list; Lighthouse performance on a subject page ≥ 90 on mobile emulation.
 
-### Stage 4 — Search (agent)
+### ✅ Stage 4 — Search (agent)
 - Section 8.
 - **Accept:** `/search-index.json` is under budget; queries "protocoale", "sinteza
   elementara", "tapus 2015", "321CA", "restante analiza" each return sensible top results;
   a typo like "algoritmi paraleli distribuit" still finds the course; facets filter and are
   reflected in the URL.
 
-### Stage 5 — Design (agent)
+### ✅ Stage 5 — Design (agent)
 - Section 9 applied across all pages.
 - **Accept:** screenshots at 375, 768 and 1280 px width committed to `docs/screenshots/`;
   axe or Lighthouse accessibility ≥ 95; dark mode checked; the arrows SVG is crisp at 2×.
 
-### Stage 6 — Deployment and cutover (agent + H3, H9 on Vercel, H10)
+### Stage 6 — Deployment and cutover (production on Vercel done; domain steps in section 0)
 - Production env vars present; a Preview deployment from a PR builds green; Production
   deploy from `main` serves the site on the `*.vercel.app` URL.
 - After H10: `https://exams.ro` and `https://www.exams.ro` serve the site with valid TLS,
