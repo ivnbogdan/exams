@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Highlight } from "@/components/search/highlight";
 import { loadIndex } from "@/lib/search-loader";
 import { facets, runSearch, SESSION_LABEL, snippet, type Filters, type Index } from "@/lib/search";
+import { courseUrl, subjectUrl } from "@/lib/urls";
 
 const PAGE = 20;
 
@@ -137,7 +138,7 @@ export function SearchClient() {
           {slice.map((h) => (
             <li key={h.doc.id} className="rounded-xl border border-black/10 bg-white p-4 shadow-sm">
               <p className="text-sm">
-                <Link href={`/curs/${h.doc.courseSlug}`} className="font-semibold text-brand-green hover:underline">
+                <Link href={courseUrl({ slug: h.doc.courseSlug, year: h.doc.courseYear, level: h.doc.level })} className="font-semibold text-brand-green hover:underline">
                   <Highlight text={h.doc.course} terms={terms} />
                 </Link>
                 <span className="text-black/60">
@@ -153,7 +154,7 @@ export function SearchClient() {
                   {h.doc.group ? ` · ${h.doc.group}${h.doc.series}` : ""}
                 </span>
               </p>
-              <Link href={`/subiect/${h.doc.id}`} className="mt-1 block text-[15px] leading-relaxed hover:underline">
+              <Link href={subjectUrl({ slug: h.doc.courseSlug, year: h.doc.courseYear, level: h.doc.level }, h.doc.id)} className="mt-1 block text-[15px] leading-relaxed hover:underline">
                 <Highlight text={snippet(h.doc.text, terms)} terms={terms} />
               </Link>
               <p className="mt-2 text-xs text-black/50">

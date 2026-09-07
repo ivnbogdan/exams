@@ -17,6 +17,7 @@ Schema lives in `src/db/schema.ts`; queries only in `src/lib/queries.ts`; DB cli
 - Database access only in server components, route handlers and scripts. No request-time DB
   access in v1; pages are generated at build.
 - Render `content_html` only; it is sanitised at import. Never render raw export text.
+- Links are built only through `src/lib/urls.ts`; URLs are `/an/<year>/<course>/<id>` and `/master/<course>/<id>`.
 - Images from R2 use plain `<img>` with stored width/height, not `next/image` optimisation.
 - Next.js here is 16.x. Its bundled docs in `node_modules/next/dist/docs/` win over memory.
 

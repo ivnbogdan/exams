@@ -8,6 +8,8 @@ export interface SearchDoc {
   id: number;
   course: string;
   courseSlug: string;
+  courseYear: number;
+  level: "licenta" | "master";
   professor: string;
   year: number | null;
   session: string;

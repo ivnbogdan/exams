@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { loadIndex } from "@/lib/search-loader";
 import { runSearch, SESSION_LABEL, type Hit } from "@/lib/search";
+import { subjectUrl } from "@/lib/urls";
 
 /** Header search: a plain form for no-JS, with a quick-results dropdown once the index is loaded. */
 export function SearchBox() {
@@ -75,7 +76,7 @@ export function SearchBox() {
         <ul className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-md border border-black/10 bg-white shadow-lg">
           {hits.map((h) => (
             <li key={h.doc.id}>
-              <Link href={`/subiect/${h.doc.id}`} onClick={() => setOpen(false)} className="block px-3 py-2 text-sm hover:bg-black/5">
+              <Link href={subjectUrl({ slug: h.doc.courseSlug, year: h.doc.courseYear, level: h.doc.level }, h.doc.id)} onClick={() => setOpen(false)} className="block px-3 py-2 text-sm hover:bg-black/5">
                 <span className="font-semibold text-brand-green">{h.doc.course}</span>
                 <span className="text-black/60">
                   {" "}

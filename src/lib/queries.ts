@@ -99,6 +99,24 @@ export const getVisibleSubjectIds = cache(async (): Promise<number[]> => {
 
 export const getCourseSlugs = cache(async (): Promise<string[]> => (await getCourses()).map((c) => c.slug));
 
+export interface SubjectRef {
+  id: number;
+  slug: string;
+  year: number;
+  level: CourseLevel;
+}
+
+/** Visible subjects with what the URL scheme needs, for generateStaticParams. */
+export const getSubjectRefs = cache(async (): Promise<SubjectRef[]> => {
+  const rows = await db()
+    .select({ id: subject.legacyId, slug: course.slug, year: course.year, level: course.level })
+    .from(subject)
+    .innerJoin(course, eq(course.id, subject.courseId))
+    .where(visible)
+    .orderBy(asc(subject.legacyId));
+  return rows.flatMap((r) => (r.id === null ? [] : [{ id: r.id, slug: r.slug, year: r.year, level: r.level }]));
+});
+
 export const getSearchDocs = cache(async (): Promise<SearchDoc[]> => {
   const rows = await db()
     .select({ subject, course, attachmentCount })
@@ -114,6 +132,8 @@ export const getSearchDocs = cache(async (): Promise<SearchDoc[]> => {
       id: r.subject.legacyId as number,
       course: r.course.name,
       courseSlug: r.course.slug,
+      courseYear: r.course.year,
+      level: r.course.level,
       professor: r.subject.professor ?? "",
       year: r.subject.examYear,
       session: r.subject.session,

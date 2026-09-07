@@ -2,15 +2,16 @@ import Link from "next/link";
 import type { Course } from "@/db/schema";
 import type { SubjectListItem } from "@/lib/queries";
 import { SESSION_LABEL, formatDate } from "@/lib/format";
+import { courseUrl, subjectUrl } from "@/lib/urls";
 
-export function SubjectCard({ subject, course }: { subject: SubjectListItem; course: Pick<Course, "name" | "slug"> }) {
-  const href = `/subiect/${subject.legacyId ?? subject.id}`;
+export function SubjectCard({ subject, course }: { subject: SubjectListItem; course: Pick<Course, "name" | "slug" | "year" | "level"> }) {
+  const href = subjectUrl(course, subject.legacyId ?? subject.id);
   const place = subject.groupName && subject.series && subject.groupName !== subject.series ? `${subject.groupName} ${subject.series}` : subject.groupName || subject.series;
   const meta = [subject.examYear, SESSION_LABEL[subject.session], place].filter(Boolean).join(" · ");
   return (
     <article className="relative rounded-xl border border-black/10 bg-white p-4 shadow-sm transition hover:shadow-md">
       <p className="text-sm font-semibold text-brand-green">
-        <Link href={`/curs/${course.slug}`} className="hover:underline">
+        <Link href={courseUrl(course)} className="hover:underline">
           {course.name}
         </Link>
       </p>

@@ -216,8 +216,9 @@ extension is available, otherwise `'simple'` alone. Do not build any v1 feature 
 |---|---|---|
 | `/` | Arrows hero, search box, browse tiles (An I–IV, Master), latest 12 visible subjects, a stats line (663 subjects, 88 courses, 680 files) | static |
 | `/an/[1-4]` and `/master` | Courses of that year/level with subject counts | static |
-| `/curs/[slug]` | Course page: subjects grouped by exam year desc, then session order prima, restante, partial, altele, then date | static, `generateStaticParams` |
-| `/subiect/[id]` | Subject page: course, professor, year, session, series and group, poster name or "anonim", content, attachments: image gallery with lightbox, download list for other kinds. `id` is `legacy_id`. Hidden subjects return 404. | static, `generateStaticParams` over visible subjects |
+| `/an/[year]/[course]` and `/master/[course]` | Course page: subjects grouped by exam year desc, then session order prima, restante, partial, altele, then date. The course must belong to that year/level, else 404. | static, `generateStaticParams` |
+| `/an/[year]/[course]/[id]` and `/master/[course]/[id]` | Subject page: course, professor, year, session, series and group, poster name or "anonim", content, lost-files note, attachments: image gallery with lightbox, download list for other kinds. `id` is `legacy_id`; the subject must belong to that course, else 404. Hidden subjects 404. | static, `generateStaticParams` over visible subjects |
+| `/curs/[slug]`, `/subiect/[id]` | Former flat addresses: permanent redirects to the hierarchical URLs, generated at build | static |
 | `/cauta` | Search page, reads `?q=` | static shell, client component |
 | `/search-index.json` | Route handler exporting the index. `export const dynamic = 'force-static'` in v1. | static at build |
 | `/sitemap.xml`, `/robots.txt` | Visible subjects and courses only | static |
@@ -232,6 +233,7 @@ Rules:
 - Downloads link straight to `R2_PUBLIC_BASE_URL/<storage_key>`.
 - Lightbox: `yet-another-react-lightbox` with the Zoom plugin, or a minimal custom dialog
   if the dependency causes trouble. Keyboard navigation and Escape must work.
+- Every internal link is built with `src/lib/urls.ts` (`levelUrl`, `courseUrl`, `subjectUrl`). Never hand-write these paths.
 - Site metadata: title pattern `<course> · <year> · exams.ro`, description from the first
   160 characters of `content_text`, Open Graph image is the arrows mark.
 
