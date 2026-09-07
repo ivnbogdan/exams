@@ -18,7 +18,7 @@ agent after each one; it then runs its matching step.
 
 ## Remaining, in order
 
-- [ ] **H7b Files domain.** Cloudflare → R2 → `exams-ro-files` → Settings → Public access → Custom Domains → Connect domain → `files.exams.ro`. Cloudflare creates the DNS record. Wait for "Active". → tell the agent: it runs **A1**.
+- [x] **H7b Files domain (done 2026-09-07; A1 done, files served from files.exams.ro).** Cloudflare → R2 → `exams-ro-files` → Settings → Public access → Custom Domains → Connect domain → `files.exams.ro`. Cloudflare creates the DNS record. Wait for "Active". → tell the agent: it runs **A1**.
 - [ ] **H10 Site domain.** Vercel → project `exams` → Settings → Domains → add `exams.ro` and `www.exams.ro`. Then in Cloudflare → DNS → Records: edit `A exams.ro` from `81.181.252.2` to the IP Vercel shows (currently `76.76.21.21`); edit `www` from `CNAME exams.ro` to `CNAME cname.vercel-dns.com`; keep the cloud grey (DNS only) on both. Leave every other record alone. Wait for "Valid Configuration" in Vercel. → tell the agent: it runs **A2** and **A3**.
 - [ ] **Email decision.** the MX record points at `mail.exams.ro`, which resolves to the old host (81.181.252.2), as do `ftp`, `cpanel`, `webmail` and `autodiscover`. If anyone still receives email at an exams.ro address, that mailbox dies with the old hosting; move or drop the email before H11. If email is not used, leave those records alone until H11 and delete them then.
 - [ ] **H11 Old hosting.** Once the agent reports A3 green and the email question is settled, cancel the gazduire.ro hosting; delete the dead `mail`, `ftp`, `cpanel`, `webmail`, `autodiscover` and MX records if email is unused. Keep `~/repos/personal/exams-ro-export/` forever; it is the only copy of the original data.
