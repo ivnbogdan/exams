@@ -16,16 +16,16 @@ export function CourseView({ course: c }: { course: CourseWithSubjects }) {
   const years = [...new Set(c.subjects.map((s) => s.examYear ?? 0))];
   return (
     <div>
-      <p className="text-sm text-black/60">
+      <p className="text-sm text-muted">
         <Link href={levelUrl(c)} className="hover:underline">
           {yearLabel(c.level, c.year)}
         </Link>
       </p>
-      <h1 className="mt-1 text-2xl font-bold text-brand-green">{c.name}</h1>
-      <p className="mt-1 text-black/60">{c.subjects.length} subiecte</p>
+      <h1 className="mt-1 text-2xl font-bold text-brand-green-strong">{c.name}</h1>
+      <p className="mt-1 text-muted">{c.subjects.length} subiecte</p>
       {years.map((y) => (
         <section key={y} className="mt-8" aria-labelledby={`y-${y}`}>
-          <h2 id={`y-${y}`} className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-orange">
+          <h2 id={`y-${y}`} className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-orange-strong">
             {y || "An necunoscut"}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

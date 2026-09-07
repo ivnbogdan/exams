@@ -1,23 +1,84 @@
 @import "tailwindcss";
 
-@theme {
-  --color-brand-teal: #24909d;
-  --color-brand-green: #6ab824;
-  --color-brand-orange: #ed9d13;
-  --color-brand-red: #e32c3b;
-  --color-ink: #202020;
-  --color-paper: #f6f6f6;
-  --color-page: #e9edf3;
+/* Theme tokens. Light is the default; dark follows the system setting (no toggle, by design). */
+:root {
+  --page: #e9edf3;
+  --paper: #f6f6f6;
+  --card: #ffffff;
+  --ink: #202020;
+  --on-ink: #ffffff;
+  --ink-hover: #000000;
+  --soft: rgba(0, 0, 0, 0.72);
+  --muted: rgba(0, 0, 0, 0.6);
+  --faint: rgba(0, 0, 0, 0.5);
+  --line: rgba(0, 0, 0, 0.1);
+  --hover: rgba(0, 0, 0, 0.05);
+  --hover-strong: rgba(0, 0, 0, 0.1);
+  --brand-teal: #24909d;
+  --brand-green: #6ab824;
+  --brand-orange: #ed9d13;
+  --brand-red: #e32c3b;
+  --brand-green-strong: #4f9a12;
+  --brand-orange-strong: #c9820a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #121417;
+    --paper: #1a1d21;
+    --card: #22262b;
+    --ink: #ececec;
+    --on-ink: #121417;
+    --ink-hover: #ffffff;
+    --soft: rgba(255, 255, 255, 0.78);
+    --muted: rgba(255, 255, 255, 0.62);
+    --faint: rgba(255, 255, 255, 0.5);
+    --line: rgba(255, 255, 255, 0.12);
+    --hover: rgba(255, 255, 255, 0.06);
+    --hover-strong: rgba(255, 255, 255, 0.12);
+    --brand-teal: #4cc0cc;
+    --brand-green: #8ad43f;
+    --brand-orange: #f3b03a;
+    --brand-red: #f0596a;
+    --brand-green-strong: #8ad43f;
+    --brand-orange-strong: #f3b03a;
+  }
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-on-ink: var(--on-ink);
+  --color-ink-hover: var(--ink-hover);
+  --color-soft: var(--soft);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-hover: var(--hover);
+  --color-hover-strong: var(--hover-strong);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-green: var(--brand-green);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-red: var(--brand-red);
+  --color-brand-green-strong: var(--brand-green-strong);
+  --color-brand-orange-strong: var(--brand-orange-strong);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 html {
-  color-scheme: light;
+  color-scheme: light dark;
 }
 
 body {
-  background: var(--color-page);
-  color: var(--color-ink);
+  background: var(--page);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-teal);
+  outline-offset: 2px;
 }
 
 /* Sanitised subject content */
@@ -29,12 +90,12 @@ body {
 .subject-content pre {
   white-space: pre-wrap;
   font-size: 0.9em;
-  background: #fff;
-  border: 1px solid #d9dee6;
+  background: var(--page);
+  border: 1px solid var(--line);
   border-radius: 0.5rem;
   padding: 0.75rem;
 }
 .subject-content a {
-  color: var(--color-brand-teal);
+  color: var(--brand-teal);
   text-decoration: underline;
 }

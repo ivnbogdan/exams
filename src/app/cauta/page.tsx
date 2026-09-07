@@ -12,7 +12,7 @@ export default function SearchPage() {
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold">Caută</h1>
-      <Suspense fallback={<p className="text-black/60">Se încarcă…</p>}>
+      <Suspense fallback={<p className="text-muted">Se încarcă…</p>}>
         <SearchClient />
       </Suspense>
     </div>

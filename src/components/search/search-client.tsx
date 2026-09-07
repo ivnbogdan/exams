@@ -79,14 +79,14 @@ export function SearchClient() {
       <aside aria-label="Filtre" className="space-y-6 text-sm">
         {active.length > 0 && (
           <div>
-            <h2 className="mb-2 font-semibold uppercase tracking-wide text-black/60">Filtre active</h2>
+            <h2 className="mb-2 font-semibold uppercase tracking-wide text-muted">Filtre active</h2>
             <ul className="flex flex-wrap gap-2">
               {active.map(([k, v]) => (
                 <li key={k}>
                   <button
                     type="button"
                     onClick={() => setParam(k, null)}
-                    className="rounded-full bg-ink px-3 py-1 text-white hover:bg-black"
+                    className="rounded-full bg-ink px-3 py-1 text-on-ink hover:bg-ink-hover"
                     aria-label={`Elimină filtrul ${activeLabel(k, v)}`}
                   >
                     {activeLabel(k, v)} ×
@@ -102,7 +102,7 @@ export function SearchClient() {
             if (list.length === 0 || (list.length === 1 && filters[key] !== undefined)) return null;
             return (
               <div key={key}>
-                <h2 className="mb-2 font-semibold uppercase tracking-wide text-black/60">{title}</h2>
+                <h2 className="mb-2 font-semibold uppercase tracking-wide text-muted">{title}</h2>
                 <ul className="space-y-1">
                   {list.map((f) => {
                     const selected = String(filters[key] ?? "") === f.value;
@@ -111,10 +111,10 @@ export function SearchClient() {
                         <button
                           type="button"
                           onClick={() => setParam(key, selected ? null : f.value)}
-                          className={`flex w-full items-center justify-between rounded px-2 py-1 text-left hover:bg-black/5 ${selected ? "bg-black/10 font-semibold" : ""}`}
+                          className={`flex w-full items-center justify-between rounded px-2 py-1 text-left hover:bg-hover ${selected ? "bg-hover-strong font-semibold" : ""}`}
                         >
                           <span className="truncate">{f.label}</span>
-                          <span className="ml-2 shrink-0 text-black/50">{f.count}</span>
+                          <span className="ml-2 shrink-0 text-faint">{f.count}</span>
                         </button>
                       </li>
                     );
@@ -127,28 +127,28 @@ export function SearchClient() {
 
       <section aria-live="polite">
         {error && <p className="text-brand-red">Căutarea nu a putut fi încărcată: {error}</p>}
-        {!index && !error && <p className="text-black/60">Se încarcă indexul…</p>}
+        {!index && !error && <p className="text-muted">Se încarcă indexul…</p>}
         {result && (
-          <p className="mb-4 text-sm text-black/60">
+          <p className="mb-4 text-sm text-muted">
             {hits.length === 0 ? "Niciun rezultat" : hits.length === 1 ? "1 rezultat" : `${hits.length} rezultate`}
             {q ? ` pentru „${q}”` : ""}
           </p>
         )}
         <ol className="space-y-4">
           {slice.map((h) => (
-            <li key={h.doc.id} className="rounded-xl border border-black/10 bg-white p-4 shadow-sm">
+            <li key={h.doc.id} className="rounded-xl border border-line bg-card p-4 shadow-sm">
               <p className="text-sm">
-                <Link href={courseUrl({ slug: h.doc.courseSlug, year: h.doc.courseYear, level: h.doc.level })} className="font-semibold text-brand-green hover:underline">
+                <Link href={courseUrl({ slug: h.doc.courseSlug, year: h.doc.courseYear, level: h.doc.level })} className="font-semibold text-brand-green-strong hover:underline">
                   <Highlight text={h.doc.course} terms={terms} />
                 </Link>
-                <span className="text-black/60">
+                <span className="text-muted">
                   {" "}
                   ·{" "}
                   <span className="text-brand-teal">
                     <Highlight text={h.doc.professor || "profesor necunoscut"} terms={terms} />
                   </span>{" "}
                   ·{" "}
-                  <span className="text-brand-orange">
+                  <span className="text-brand-orange-strong">
                     {h.doc.year ?? ""} {SESSION_LABEL[h.doc.session]}
                   </span>
                   {h.doc.group ? ` · ${h.doc.group}${h.doc.series}` : ""}
@@ -157,7 +157,7 @@ export function SearchClient() {
               <Link href={subjectUrl({ slug: h.doc.courseSlug, year: h.doc.courseYear, level: h.doc.level }, h.doc.id)} className="mt-1 block text-[15px] leading-relaxed hover:underline">
                 <Highlight text={snippet(h.doc.text, terms)} terms={terms} />
               </Link>
-              <p className="mt-2 text-xs text-black/50">
+              <p className="mt-2 text-xs text-faint">
                 {h.doc.date}
                 {h.doc.files ? ` · ${h.doc.files} ${h.doc.files === 1 ? "fișier" : "fișiere"}` : ""}
               </p>
@@ -166,13 +166,13 @@ export function SearchClient() {
         </ol>
         {pages > 1 && (
           <nav aria-label="Paginare" className="mt-6 flex items-center justify-between text-sm">
-            <button type="button" disabled={page <= 1} onClick={() => setPage(page - 1)} className="rounded-md border border-black/15 px-3 py-1.5 disabled:opacity-40">
+            <button type="button" disabled={page <= 1} onClick={() => setPage(page - 1)} className="rounded-md border border-line px-3 py-1.5 disabled:opacity-40">
               ← Anterioare
             </button>
-            <span className="text-black/60">
+            <span className="text-muted">
               Pagina {page} din {pages}
             </span>
-            <button type="button" disabled={page >= pages} onClick={() => setPage(page + 1)} className="rounded-md border border-black/15 px-3 py-1.5 disabled:opacity-40">
+            <button type="button" disabled={page >= pages} onClick={() => setPage(page + 1)} className="rounded-md border border-line px-3 py-1.5 disabled:opacity-40">
               Următoarele →
             </button>
           </nav>

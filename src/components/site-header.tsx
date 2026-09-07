@@ -12,14 +12,14 @@ const NAV = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-20 border-b border-black/10 bg-paper/95 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3">
         <Link href="/" className="shrink-0" aria-label="exams.ro, prima pagină">
           <BrandMark className="h-12 w-auto" />
         </Link>
         <nav aria-label="Ani de studiu" className="flex flex-wrap gap-1 text-sm font-medium">
           {NAV.map((n) => (
-            <Link key={n.href} href={n.href} className="rounded-md px-2.5 py-1.5 hover:bg-black/5">
+            <Link key={n.href} href={n.href} className="rounded-md px-2.5 py-1.5 hover:bg-hover">
               {n.label}
             </Link>
           ))}

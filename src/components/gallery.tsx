@@ -24,7 +24,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
             <button
               type="button"
               onClick={() => setIndex(i)}
-              className="block w-full overflow-hidden rounded-lg border border-black/10 bg-white focus:outline-none focus:ring-2 focus:ring-brand-teal"
+              className="block w-full overflow-hidden rounded-lg border border-line bg-card focus:outline-none focus:ring-2 focus:ring-brand-teal"
               aria-label={`Deschide ${img.name}`}
             >
               <img

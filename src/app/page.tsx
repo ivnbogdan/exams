@@ -19,7 +19,7 @@ export default async function HomePage() {
         <BrandMark className="w-56 shrink-0" />
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Subiectele de examen, la un loc.</h1>
-          <p className="mt-2 max-w-xl text-black/70">
+          <p className="mt-2 max-w-xl text-soft">
             Arhiva subiectelor de la Automatică și Calculatoare, Politehnica București: {stats.subjects} subiecte din {stats.courses} materii,
             cu {stats.files} fișiere atașate.
           </p>
@@ -27,15 +27,15 @@ export default async function HomePage() {
       </section>
 
       <section aria-labelledby="browse">
-        <h2 id="browse" className="mb-3 text-sm font-semibold uppercase tracking-wide text-black/60">
+        <h2 id="browse" className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
           Răsfoiește pe ani
         </h2>
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {tiles.map((t) => (
             <li key={t.href}>
-              <Link href={t.href} className="block rounded-xl border border-black/10 bg-white p-4 text-center shadow-sm transition hover:shadow-md">
+              <Link href={t.href} className="block rounded-xl border border-line bg-card p-4 text-center shadow-sm transition hover:shadow-md">
                 <span className="block text-lg font-bold">{t.label}</span>
-                <span className="text-sm text-black/60">{t.count} materii</span>
+                <span className="text-sm text-muted">{t.count} materii</span>
               </Link>
             </li>
           ))}
@@ -43,7 +43,7 @@ export default async function HomePage() {
       </section>
 
       <section aria-labelledby="latest">
-        <h2 id="latest" className="mb-3 text-sm font-semibold uppercase tracking-wide text-black/60">
+        <h2 id="latest" className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
           Ultimele subiecte adăugate
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

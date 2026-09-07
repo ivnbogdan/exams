@@ -9,8 +9,8 @@ export function SubjectCard({ subject, course }: { subject: SubjectListItem; cou
   const place = subject.groupName && subject.series && subject.groupName !== subject.series ? `${subject.groupName} ${subject.series}` : subject.groupName || subject.series;
   const meta = [subject.examYear, SESSION_LABEL[subject.session], place].filter(Boolean).join(" · ");
   return (
-    <article className="relative rounded-xl border border-black/10 bg-white p-4 shadow-sm transition hover:shadow-md">
-      <p className="text-sm font-semibold text-brand-green">
+    <article className="relative rounded-xl border border-line bg-card p-4 shadow-sm transition hover:shadow-md">
+      <p className="text-sm font-semibold text-brand-green-strong">
         <Link href={courseUrl(course)} className="hover:underline">
           {course.name}
         </Link>
@@ -20,9 +20,9 @@ export function SubjectCard({ subject, course }: { subject: SubjectListItem; cou
           <span className="text-brand-teal">{subject.professor ?? "profesor necunoscut"}</span>
         </Link>
       </h3>
-      <p className="mt-1 text-sm text-brand-orange">{meta}</p>
-      <p className="mt-2 line-clamp-3 text-sm text-black/70">{subject.contentText}</p>
-      <p className="mt-3 flex flex-wrap gap-x-3 text-xs text-black/50">
+      <p className="mt-1 text-sm text-brand-orange-strong">{meta}</p>
+      <p className="mt-2 line-clamp-3 text-sm text-soft">{subject.contentText}</p>
+      <p className="mt-3 flex flex-wrap gap-x-3 text-xs text-faint">
         <span>{formatDate(subject.createdAt)}</span>
         {subject.attachmentCount > 0 && (
           <span>
@@ -31,7 +31,7 @@ export function SubjectCard({ subject, course }: { subject: SubjectListItem; cou
           </span>
         )}
         {subject.lostFiles > 0 && (
-          <span className="text-brand-orange">
+          <span className="text-brand-orange-strong">
             {subject.lostFiles} {subject.lostFiles === 1 ? "fișier pierdut" : "fișiere pierdute"}
           </span>
         )}

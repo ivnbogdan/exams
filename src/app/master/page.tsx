@@ -11,13 +11,13 @@ export default async function MasterPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold">Master</h1>
-      <p className="mt-1 text-black/60">{courses.length} materii cu subiecte</p>
+      <p className="mt-1 text-muted">{courses.length} materii cu subiecte</p>
       <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {courses.map((c) => (
           <li key={c.id}>
-            <Link href={courseUrl(c)} className="flex items-baseline justify-between gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 shadow-sm transition hover:shadow-md">
-              <span className="font-semibold text-brand-green">{c.name}</span>
-              <span className="shrink-0 text-sm text-black/50">an {roman(c.year)} · {c.subjectCount}</span>
+            <Link href={courseUrl(c)} className="flex items-baseline justify-between gap-3 rounded-xl border border-line bg-card px-4 py-3 shadow-sm transition hover:shadow-md">
+              <span className="font-semibold text-brand-green-strong">{c.name}</span>
+              <span className="shrink-0 text-sm text-faint">an {roman(c.year)} · {c.subjectCount}</span>
             </Link>
           </li>
         ))}

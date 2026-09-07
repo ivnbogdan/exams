@@ -11,7 +11,7 @@ export function Attachments({ attachments, subjectLabel }: { attachments: Attach
     <section className="mt-8 space-y-6" aria-label="Fișiere atașate">
       {images.length > 0 && (
         <div>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-black/60">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
             {images.length === 1 ? "Imagine" : `${images.length} imagini`}
           </h2>
           <Gallery
@@ -28,17 +28,17 @@ export function Attachments({ attachments, subjectLabel }: { attachments: Attach
       )}
       {files.length > 0 && (
         <div>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-black/60">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
             {files.length === 1 ? "Fișier" : `${files.length} fișiere`}
           </h2>
-          <ul className="divide-y divide-black/10 rounded-xl border border-black/10 bg-white">
+          <ul className="divide-y divide-line rounded-xl border border-line bg-card">
             {files.map((a) => (
               <li key={a.id} className="flex items-center gap-3 px-4 py-3">
-                <span className="rounded bg-black/5 px-2 py-0.5 text-xs uppercase text-black/60">{KIND_LABEL[a.kind]}</span>
+                <span className="rounded bg-hover px-2 py-0.5 text-xs uppercase text-muted">{KIND_LABEL[a.kind]}</span>
                 <a href={fileUrl(a.storageKey)} className="min-w-0 flex-1 truncate font-medium text-brand-teal hover:underline" rel="noopener">
                   {a.originalName}
                 </a>
-                <span className="shrink-0 text-xs text-black/50">{formatBytes(a.size)}</span>
+                <span className="shrink-0 text-xs text-faint">{formatBytes(a.size)}</span>
               </li>
             ))}
           </ul>

@@ -23,7 +23,7 @@ export function SubjectView({ subject: s }: { subject: SubjectFull }) {
 
   return (
     <article>
-      <nav aria-label="Navigare" className="text-sm text-black/60">
+      <nav aria-label="Navigare" className="text-sm text-muted">
         <Link href={levelUrl(s.course)} className="hover:underline">
           {yearLabel(s.course.level, s.course.year)}
         </Link>
@@ -33,20 +33,20 @@ export function SubjectView({ subject: s }: { subject: SubjectFull }) {
         </Link>
       </nav>
       <h1 className="mt-2 text-2xl font-bold">
-        <span className="text-brand-green">{s.course.name}</span>
-        {s.examYear && <span className="text-brand-orange"> · {s.examYear}</span>}
-        <span className="text-black/60"> · {SESSION_LABEL[s.session]}</span>
+        <span className="text-brand-green-strong">{s.course.name}</span>
+        {s.examYear && <span className="text-brand-orange-strong"> · {s.examYear}</span>}
+        <span className="text-muted"> · {SESSION_LABEL[s.session]}</span>
       </h1>
       <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
         {facts.map(([k, v]) => (
           <div key={k}>
-            <dt className="text-black/50">{k}</dt>
+            <dt className="text-faint">{k}</dt>
             <dd className={k === "Profesor" ? "font-medium text-brand-teal" : "font-medium"}>{v}</dd>
           </div>
         ))}
       </dl>
       {s.contentHtml && (
-        <div className="subject-content mt-6 rounded-xl border border-black/10 bg-white p-5 text-[15px]" dangerouslySetInnerHTML={{ __html: s.contentHtml }} />
+        <div className="subject-content mt-6 rounded-xl border border-line bg-card p-5 text-[15px]" dangerouslySetInnerHTML={{ __html: s.contentHtml }} />
       )}
       {s.lostFiles > 0 && (
         <p className="mt-6 rounded-xl border border-brand-orange/40 bg-brand-orange/10 p-4 text-sm" role="note">

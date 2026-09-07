@@ -66,30 +66,30 @@ export function SearchBox() {
           onFocus={() => setOpen(true)}
           placeholder="Caută materie, profesor, subiect…"
           autoComplete="off"
-          className="w-full rounded-md border border-black/15 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/30"
+          className="w-full rounded-md border border-line bg-card px-3 py-1.5 text-sm outline-none focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/30"
         />
-        <button type="submit" className="rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-white hover:bg-black">
+        <button type="submit" className="rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-on-ink hover:bg-ink-hover">
           Caută
         </button>
       </form>
       {open && hits.length > 0 && (
-        <ul className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-md border border-black/10 bg-white shadow-lg">
+        <ul className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-md border border-line bg-card shadow-lg">
           {hits.map((h) => (
             <li key={h.doc.id}>
-              <Link href={subjectUrl({ slug: h.doc.courseSlug, year: h.doc.courseYear, level: h.doc.level }, h.doc.id)} onClick={() => setOpen(false)} className="block px-3 py-2 text-sm hover:bg-black/5">
-                <span className="font-semibold text-brand-green">{h.doc.course}</span>
-                <span className="text-black/60">
+              <Link href={subjectUrl({ slug: h.doc.courseSlug, year: h.doc.courseYear, level: h.doc.level }, h.doc.id)} onClick={() => setOpen(false)} className="block px-3 py-2 text-sm hover:bg-hover">
+                <span className="font-semibold text-brand-green-strong">{h.doc.course}</span>
+                <span className="text-muted">
                   {" "}
                   · {h.doc.professor || "profesor necunoscut"} · {h.doc.year ?? ""} {SESSION_LABEL[h.doc.session]}
                 </span>
               </Link>
             </li>
           ))}
-          <li className="border-t border-black/10">
+          <li className="border-t border-line">
             <Link
               href={`/cauta?q=${encodeURIComponent(q.trim())}`}
               onClick={() => setOpen(false)}
-              className="block px-3 py-2 text-sm text-brand-teal hover:bg-black/5"
+              className="block px-3 py-2 text-sm text-brand-teal hover:bg-hover"
             >
               Toate rezultatele pentru „{q.trim()}”
             </Link>
