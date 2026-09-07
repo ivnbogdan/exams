@@ -15,40 +15,33 @@ Companion file: `docs/HUMAN-ACTIONS.md` is the checklist for the owner. Keep bot
 Stages 0 to 5 are done. The site is live on Vercel at https://exams-sooty.vercel.app with all
 content, files, search, the mark, dark mode and the hierarchical URLs.
 
-Live DNS today:  already uses Cloudflare nameservers (,
-) in the same Cloudflare account that holds the R2 bucket. Inside the zone,
- is an A record to the old host  (DNS only, not proxied) and  is a CNAME to
-. So there is no nameserver change and no zone to create: the cutover is editing those two
-records. Email: the MX record points at , which resolves to the old host (81.181.252.2). If anyone still receives email at an exams.ro address, that mailbox dies with the old hosting; move or drop the email before H11. If email is not used, leave the MX and mail records alone until H11 and delete them then.
+Live DNS today: `exams.ro` already uses Cloudflare nameservers (`brad.ns.cloudflare.com`,
+`pat.ns.cloudflare.com`) in the same Cloudflare account that holds the R2 bucket. Inside the zone,
+`exams.ro` is an A record to the old host `81.181.252.2` (DNS only, not proxied) and `www` is a CNAME to
+`exams.ro`. So there is no nameserver change and no zone to create: the cutover is editing those two
+records. Email: the MX record points at `mail.exams.ro`, which resolves to the old host (81.181.252.2), as do `ftp`, `cpanel`, `webmail` and `autodiscover`. If anyone still receives email at an exams.ro address, that mailbox dies with the old hosting; move or drop the email before H11. If email is not used, leave those records alone until H11 and delete them then.
 
 ### HUMAN steps (owner), in order
 
 | # | Step | Exact actions | Done when |
 |---|---|---|---|
-| H7b | Files domain | Cloudflare → R2 → bucket  → Settings → Public access → Custom Domains → Connect domain → . Cloudflare adds the DNS record itself. | Status "Active" next to the domain. Then tell the agent → A1 |
-| H10 | Site domain | Vercel → project  → Settings → Domains → add  and ; Vercel shows the records it wants. In Cloudflare → DNS → Records: edit the existing  to the IP Vercel shows (currently ), and edit  from  to , both with the proxy OFF (grey cloud). Touch nothing else: leave , , and any other records as they are. | Vercel shows "Valid Configuration" for both. Then tell the agent → A2, A3 |
-| H11 | Old hosting | After A3 passes and the email question is settled, cancel the gazduire.ro hosting and delete the now-dead /MX records if unused. Keep  as the permanent backup. | — |
-| H12 | Before v2 only | In Vercel → Settings → Environment Variables, re-enter the real , , ,  (the current values are placeholders; v1 never reads them). Delete , which is local-only. | — |
+| H7b | Files domain | Cloudflare → R2 → bucket `exams-ro-files` → Settings → Public access → Custom Domains → Connect domain → `files.exams.ro`. Cloudflare adds the DNS record itself. | Status "Active" next to the domain. Then tell the agent → A1 |
+| H10 | Site domain | Vercel → project `exams` → Settings → Domains → add `exams.ro` and `www.exams.ro`; Vercel shows the records it wants. In Cloudflare → DNS → Records: edit the existing `A exams.ro 81.181.252.2` to the IP Vercel shows (currently `76.76.21.21`), and edit `www` from `CNAME exams.ro` to `CNAME cname.vercel-dns.com`, both with the proxy OFF (grey cloud). Touch nothing else: leave `MX`, `mail`, and any other records as they are. | Vercel shows "Valid Configuration" for both. Then tell the agent → A2, A3 |
+| H11 | Old hosting | After A3 passes and the email question is settled, cancel the gazduire.ro hosting and delete the now-dead `mail`, `ftp`, `cpanel`, `webmail`, `autodiscover` and MX records if unused. Keep `~/repos/personal/exams-ro-export/` as the permanent backup. | — |
+| H12 | Before v2 only | In Vercel → Settings → Environment Variables, re-enter the real `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` (the current values are placeholders; v1 never reads them). Delete `EXPORT_DIR`, which is local-only. | — |
 
-Alternative for H7b and H10 record edits: a Cloudflare API token scoped to Zone → DNS → Edit for
-, handed to the agent, lets the agent make the record changes and verify them itself. The
-Vercel domain must still be added in the Vercel dashboard.
+Alternative for the record edits in H7b and H10: a Cloudflare API token scoped to Zone → DNS → Edit
+for `exams.ro`, handed to the agent, lets the agent make and verify the DNS changes itself. Adding
+the domain in Vercel stays a dashboard step.
 
 ### AGENT steps, in order
 
 | # | Waits on | Step | Done when |
 |---|---|---|---|
-| A1 | H7b | Set  on Vercel (Production and Preview:  then value) and in . Redeploy. |  → 200, and a subject page on the deployment shows images from that host |
-| A2 | H10 | Set  on Vercel Production (the stored value is invalid today, so production falls back to the Vercel hostname: its sitemap lists ). Redeploy. Not before H10: until the record change  still serves the old PHP site. |  and the  URL on the deployment start with  |
-| A3 | H10, A1, A2 | Cutover verification: HTTP/2 200 
-x-powered-by: PHP/5.6.40
-content-type: text/html; charset=UTF-8
-date: Mon, 07 Sep 2026 03:44:11 GMT
-server: LiteSpeed
-alt-svc: h3=":443"; ma=2592000, h3-29=":443"; ma=2592000, h3-Q050=":443"; ma=2592000, h3-Q046=":443"; ma=2592000, h3-Q043=":443"; ma=2592000, quic=":443"; ma=2592000; v="43,46"
-
- and  (200 or a redirect to the apex, valid TLS), five subject pages opened by hand, three downloads, images loading on a phone off Wi-Fi and on Bogdan's Mac (his router blocks  but not ). | All pass; note the results in PROGRESS.md |
-| A4 | A1 | Stage 3 acceptance left unmeasured: Lighthouse performance ≥ 90, mobile, on a subject page. PageSpeed's anonymous quota was exhausted on 2026-09-07; retry with , or a Chrome performance trace from a network where the files host resolves. | Score recorded in PROGRESS.md; if below 90, act on the report |
+| A1 | H7b | Set `R2_PUBLIC_BASE_URL=https://files.exams.ro` on Vercel (Production and Preview: `vercel env rm` then `printf value \| vercel env add`) and in `.env.local`. Redeploy. | `curl -I https://files.exams.ro/subjects/57/1-subeea.jpg` → 200, and a subject page on the deployment shows images from that host |
+| A2 | H10 | Set `NEXT_PUBLIC_SITE_URL=https://exams.ro` on Vercel Production (the stored value is invalid today, so production falls back to the Vercel hostname: its sitemap lists `exams-sooty.vercel.app`). Redeploy. Not before H10: until the record change `https://exams.ro` still serves the old PHP site. | `/sitemap.xml` and the `og:image` URL on the deployment start with `https://exams.ro` |
+| A3 | H10, A1, A2 | Cutover verification: `curl -I https://exams.ro/` and `https://www.exams.ro/` (200 or a redirect to the apex, valid TLS), five subject pages opened by hand, three downloads, images loading on a phone off Wi-Fi and on Bogdan's Mac (his router blocks `r2.dev` but not `files.exams.ro`). | All pass; note the results in PROGRESS.md |
+| A4 | A1 | Stage 3 acceptance left unmeasured: Lighthouse performance ≥ 90, mobile, on a subject page. PageSpeed's anonymous quota was exhausted on 2026-09-07; retry with `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=<page>&strategy=mobile&category=performance`, or a Chrome performance trace from a network where the files host resolves. | Score recorded in PROGRESS.md; if below 90, act on the report |
 | A5 | — | Lightbox keyboard check by hand: open a gallery, arrow keys move, Escape closes, focus returns to the thumbnail. | Noted in PROGRESS.md |
 | A6 | A3 | Docs: README and HUMAN-ACTIONS mention the live domain; PROGRESS marks Stage 6 done; update the memory notes. | Committed |
 
