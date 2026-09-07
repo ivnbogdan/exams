@@ -43,7 +43,7 @@ export function SearchBox() {
   }, []);
 
   return (
-    <div ref={box} className="relative ml-auto w-full max-w-md sm:w-auto">
+    <div ref={box} className="relative basis-full sm:min-w-72 sm:flex-1">
       <form
         action="/cauta"
         role="search"
