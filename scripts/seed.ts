@@ -78,6 +78,7 @@ async function seedDb(p: Prepared) {
           contentText: s.contentText,
           posterName: s.posterName,
           hidden: s.hidden,
+          lostFiles: s.lostFiles,
           createdAt: s.createdAt,
         })),
       )
@@ -94,6 +95,7 @@ async function seedDb(p: Prepared) {
           contentText: sql`excluded.content_text`,
           posterName: sql`excluded.poster_name`,
           hidden: sql`excluded.hidden`,
+          lostFiles: sql`excluded.lost_files`,
           createdAt: sql`excluded.created_at`,
           updatedAt: sql`now()`,
         },

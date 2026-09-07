@@ -51,6 +51,7 @@ export interface PSubject {
   contentText: string;
   posterName: string | null;
   hidden: boolean;
+  lostFiles: number;
   createdAt: Date;
   attachments: PAttachment[];
 }
@@ -189,6 +190,7 @@ export async function prepare(data: ExportData, opts: { readImages: boolean }): 
     attachmentsTotal += attachments.length;
 
     const hidden = attachments.length === 0 && text.length < 80;
+    const lostFiles = s.attachments.filter((a) => a.status === "missing_on_server").length;
     const examYear = Number(s.data_an);
     subjects.push({
       legacyId,
@@ -202,6 +204,7 @@ export async function prepare(data: ExportData, opts: { readImages: boolean }): 
       contentText: text,
       posterName: s.anonim === "1" ? null : nullIfBlank(s.user),
       hidden,
+      lostFiles,
       createdAt: new Date(`${(s.data ?? "2011-01-01").trim()}T12:00:00Z`),
       attachments,
     });
@@ -218,6 +221,7 @@ export async function prepare(data: ExportData, opts: { readImages: boolean }): 
     coursesMaster: courses.filter((c) => c.level === "master").length,
     subjects: subjects.length,
     hidden: subjects.filter((s) => s.hidden).length,
+    lostFiles: subjects.reduce((n, s) => n + s.lostFiles, 0),
     visible: subjects.filter((s) => !s.hidden).length,
     anonymous: subjects.filter((s) => s.posterName === null).length,
     attachments: attachmentsTotal,

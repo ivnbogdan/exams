@@ -29,6 +29,11 @@ export function SubjectCard({ subject, course }: { subject: SubjectListItem; cou
             {subject.imageCount > 0 ? `, ${subject.imageCount} ${subject.imageCount === 1 ? "imagine" : "imagini"}` : ""}
           </span>
         )}
+        {subject.lostFiles > 0 && (
+          <span className="text-brand-orange">
+            {subject.lostFiles} {subject.lostFiles === 1 ? "fișier pierdut" : "fișiere pierdute"}
+          </span>
+        )}
       </p>
     </article>
   );

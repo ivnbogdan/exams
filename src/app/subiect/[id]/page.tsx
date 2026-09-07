@@ -59,6 +59,13 @@ export default async function SubjectPage({ params }: { params: Promise<{ id: st
       {s.contentHtml && (
         <div className="subject-content mt-6 rounded-xl border border-black/10 bg-white p-5 text-[15px]" dangerouslySetInnerHTML={{ __html: s.contentHtml }} />
       )}
+      {s.lostFiles > 0 && (
+        <p className="mt-6 rounded-xl border border-brand-orange/40 bg-brand-orange/10 p-4 text-sm" role="note">
+          Acest subiect avea {s.lostFiles} {s.lostFiles === 1 ? "fișier atașat" : "fișiere atașate"} pe vechiul site, dar{" "}
+          {s.lostFiles === 1 ? "s-a pierdut" : "s-au pierdut"} din cauza unei defecțiuni a vechiului server, înainte de mutare.
+          {s.attachments.length > 0 ? " Fișierele de mai jos sunt cele care s-au păstrat." : ""}
+        </p>
+      )}
       <Attachments attachments={s.attachments} subjectLabel={label} />
     </article>
   );

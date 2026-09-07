@@ -57,6 +57,8 @@ export const subject = pgTable(
     /** Null when the subject was posted anonymously. */
     posterName: text("poster_name"),
     hidden: boolean("hidden").notNull().default(false),
+    /** Attachments the old site recorded but never stored on its server (lost before the move). Shown as a note. */
+    lostFiles: smallint("lost_files").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
     /**
