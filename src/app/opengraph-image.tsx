@@ -12,30 +12,34 @@ const DISCS_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 250"
 const DISCS_URI = `data:image/svg+xml;base64,${Buffer.from(DISCS_SVG).toString("base64")}`;
 
 /**
- * Silkscreen 700 as TrueType from Google Fonts (the renderer cannot read WOFF2). Google picks the
- * format from the user agent, so try agents known to receive TTF. Falls back to the default font
- * if the network is unavailable at build.
+ * TrueType from Google Fonts (the renderer cannot read WOFF2). Google picks the format from the
+ * user agent; a curl agent receives TTF. Returns null when the network is unavailable at build,
+ * in which case the renderer's default font is used.
  */
-const AGENTS = ["curl/8.0", "Mozilla/5.0 (Windows NT 6.1; rv:5.0) Gecko/20100101 Firefox/5.0"];
-
-async function loadFont(): Promise<ArrayBuffer | null> {
-  for (const ua of AGENTS) {
-    try {
-      const css = await fetch("https://fonts.googleapis.com/css2?family=Silkscreen:wght@700", { headers: { "User-Agent": ua } }).then((r) => r.text());
-      const url = /url\((https:[^)]+\.ttf)\)/.exec(css)?.[1];
-      if (!url) continue;
-      const res = await fetch(url);
-      if (res.ok) return await res.arrayBuffer();
-    } catch {
-      // try the next agent
-    }
+async function loadTtf(family: string, weight: number): Promise<ArrayBuffer | null> {
+  try {
+    const css = await fetch(`https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@${weight}`, {
+      headers: { "User-Agent": "curl/8.0" },
+    }).then((r) => r.text());
+    const url = /url\((https:[^)]+\.ttf)\)/.exec(css)?.[1];
+    if (!url) return null;
+    const res = await fetch(url);
+    return res.ok ? await res.arrayBuffer() : null;
+  } catch {
+    return null;
   }
-  return null;
 }
 
 export default async function OpenGraphImage() {
-  const font = await loadFont();
-  const family = font ? "Silkscreen" : undefined;
+  const [mark, body, bodyBold] = await Promise.all([loadTtf("Silkscreen", 700), loadTtf("Noto Sans", 400), loadTtf("Noto Sans", 700)]);
+  const fonts = [
+    ...(body ? [{ name: "Body", data: body, weight: 400 as const, style: "normal" as const }] : []),
+    ...(bodyBold ? [{ name: "Body", data: bodyBold, weight: 700 as const, style: "normal" as const }] : []),
+    ...(mark ? [{ name: "Mark", data: mark, weight: 700 as const, style: "normal" as const }] : []),
+  ];
+  const bodyFamily = body ? "Body" : undefined;
+  const markFamily = mark ? "Mark" : bodyFamily;
+
   return new ImageResponse(
     (
       <div
@@ -46,20 +50,23 @@ export default async function OpenGraphImage() {
           alignItems: "center",
           background: "#121417",
           color: "#ffffff",
-          padding: "70px 80px",
+          padding: "60px",
+          fontFamily: bodyFamily,
         }}
       >
-        <img src={DISCS_URI} width={420} height={420} alt="" style={{ borderRadius: 56 }} />
-        <div style={{ display: "flex", flexDirection: "column", marginLeft: 72 }}>
-          <div style={{ display: "flex", alignItems: "baseline", fontFamily: family, fontWeight: 700, letterSpacing: -2 }}>
-            <span style={{ fontSize: 118 }}>EXAMS</span>
-            <span style={{ fontSize: 56, marginLeft: 18, color: "#f3b03a" }}>.RO</span>
+        <img src={DISCS_URI} width={380} height={380} alt="" />
+        <div style={{ display: "flex", flexDirection: "column", marginLeft: 56, width: 644 }}>
+          <div style={{ display: "flex", alignItems: "baseline", fontFamily: markFamily, fontWeight: 700 }}>
+            <span style={{ fontSize: 92, letterSpacing: -3 }}>EXAMS</span>
+            <span style={{ fontSize: 40, marginLeft: 16, color: "#f3b03a" }}>.RO</span>
           </div>
-          <div style={{ fontSize: 40, marginTop: 24, color: "rgba(255,255,255,0.8)" }}>Subiectele de examen, la un loc.</div>
-          <div style={{ fontSize: 28, marginTop: 14, color: "rgba(255,255,255,0.55)" }}>Automatică și Calculatoare, Politehnica București</div>
+          <div style={{ fontSize: 32, marginTop: 22, fontWeight: 700, color: "rgba(255,255,255,0.88)" }}>Subiectele de examen, la un loc.</div>
+          <div style={{ fontSize: 24, marginTop: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.35 }}>
+            Automatică și Calculatoare, Politehnica București
+          </div>
         </div>
       </div>
     ),
-    { ...size, fonts: font ? [{ name: "Silkscreen", data: font, weight: 700, style: "normal" }] : [] },
+    { ...size, fonts },
   );
 }
