@@ -12,7 +12,7 @@ Agents: update this file at the end of every stage. Owner: the HUMAN items are i
 | 5 Design | mark redrawn from the 2011 banner; dark mode follows the system setting, with a system/light/dark toggle in the header whose choice is stored in the browser and applied before first paint; focus rings and skip link; OG image from the mark; home page Lighthouse accessibility, best practices and SEO all 100; screenshots in `docs/screenshots/` | 2026-09-07 | tokens live in `src/app/globals.css` (`@theme inline` over `:root` variables); components use `bg-card`, `text-muted`, `border-line` etc., never raw black/white |
 | 6 Deployment and cutover | production deploy green on Vercel (exams-sooty.vercel.app); domain steps H5, H6, H10 pending | 2026-09-05 | `NEXT_PUBLIC_SITE_URL` code now tolerates a schemeless value. `R2_PUBLIC_BASE_URL` on Vercel was an empty placeholder and was replaced with the r2.dev URL via CLI. The other `R2_*` values on Vercel are unverified placeholders from 17h before; they matter only for v2 uploads. `EXPORT_DIR` on Vercel is unnecessary. |
 
-Human actions completed: H1, H2, H3, H4, H7, H8, H9.
+Human actions completed: H1, H2, H3, H4, H5, H6 (exams.ro was already on Cloudflare nameservers), H7, H8, H9.
 
 ## Remaining (exact list lives in PLAN.md section 0)
 - Human: H5 Cloudflare zone → H6 nameservers → H7b `files.exams.ro` on the bucket → H10 domain on Vercel → H11 cancel old hosting → H12 real R2 keys on Vercel before v2.

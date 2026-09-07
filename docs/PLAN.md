@@ -10,32 +10,45 @@ Companion file: `docs/HUMAN-ACTIONS.md` is the checklist for the owner. Keep bot
 
 ---
 
-## 0. Status and remaining work (updated 2026-09-07)
+## 0. Status and remaining work (updated 2026-09-07, after checking live DNS)
 
 Stages 0 to 5 are done. The site is live on Vercel at https://exams-sooty.vercel.app with all
-content, files, search, the mark, dark mode and the hierarchical URLs. What is left is the move to
-the real domain plus a few verifications. Do these in order; each agent step names the human step
-it waits on.
+content, files, search, the mark, dark mode and the hierarchical URLs.
+
+Live DNS today:  already uses Cloudflare nameservers (,
+) in the same Cloudflare account that holds the R2 bucket. Inside the zone,
+ is an A record to the old host  (DNS only, not proxied) and  is a CNAME to
+. So there is no nameserver change and no zone to create: the cutover is editing those two
+records. Email: the MX record points at , which resolves to the old host (81.181.252.2). If anyone still receives email at an exams.ro address, that mailbox dies with the old hosting; move or drop the email before H11. If email is not used, leave the MX and mail records alone until H11 and delete them then.
 
 ### HUMAN steps (owner), in order
 
 | # | Step | Exact actions | Done when |
 |---|---|---|---|
-| H5 | Cloudflare zone | Create a Cloudflare account. Add a site → `exams.ro` → Free plan. Cloudflare lists two nameservers; note them. | Zone shows "Pending nameserver update" |
-| H6 | Nameservers | First, in the old host's DNS panel, note every existing record (especially MX if email on exams.ro is used) and recreate them in Cloudflare DNS. Then at the registrar replace the nameservers with Cloudflare's two. | `dig NS exams.ro` returns the Cloudflare names (up to 24 h) |
-| H7b | Files domain | Cloudflare → R2 → bucket `exams-ro-files` → Settings → Public access → Custom Domains → Connect domain → `files.exams.ro`. Cloudflare adds the DNS record itself. | Status "Active" next to the domain |
-| H10 | Site domain | Vercel → project `exams` → Settings → Domains → add `exams.ro` and `www.exams.ro`. Add the records Vercel shows into Cloudflare DNS with the proxy OFF (grey cloud). Delete the old A record that points at the old host. | Vercel shows "Valid Configuration" for both |
-| H11 | Old hosting | After A3 passes, cancel the gazduire.ro hosting. Keep `~/repos/personal/exams-ro-export/` as the permanent backup. | — |
-| H12 | Before v2 only | In Vercel → Settings → Environment Variables, re-enter the real `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` (the current values are placeholders from the first setup; v1 never reads them). Delete `EXPORT_DIR`, which is local-only. | — |
+| H7b | Files domain | Cloudflare → R2 → bucket  → Settings → Public access → Custom Domains → Connect domain → . Cloudflare adds the DNS record itself. | Status "Active" next to the domain. Then tell the agent → A1 |
+| H10 | Site domain | Vercel → project  → Settings → Domains → add  and ; Vercel shows the records it wants. In Cloudflare → DNS → Records: edit the existing  to the IP Vercel shows (currently ), and edit  from  to , both with the proxy OFF (grey cloud). Touch nothing else: leave , , and any other records as they are. | Vercel shows "Valid Configuration" for both. Then tell the agent → A2, A3 |
+| H11 | Old hosting | After A3 passes and the email question is settled, cancel the gazduire.ro hosting and delete the now-dead /MX records if unused. Keep  as the permanent backup. | — |
+| H12 | Before v2 only | In Vercel → Settings → Environment Variables, re-enter the real , , ,  (the current values are placeholders; v1 never reads them). Delete , which is local-only. | — |
+
+Alternative for H7b and H10 record edits: a Cloudflare API token scoped to Zone → DNS → Edit for
+, handed to the agent, lets the agent make the record changes and verify them itself. The
+Vercel domain must still be added in the Vercel dashboard.
 
 ### AGENT steps, in order
 
 | # | Waits on | Step | Done when |
 |---|---|---|---|
-| A1 | H7b | Set `R2_PUBLIC_BASE_URL=https://files.exams.ro` on Vercel (Production and Preview: `vercel env rm` then `printf value \| vercel env add`) and in `.env.local`. Redeploy. | `curl -I https://files.exams.ro/subjects/57/1-subeea.jpg` → 200, and a subject page on the deployment shows images from that host |
-| A2 | H10 | Set `NEXT_PUBLIC_SITE_URL=https://exams.ro` on Vercel Production (the stored value is invalid today, so production falls back to the Vercel hostname: its sitemap lists `exams-sooty.vercel.app`). Redeploy. Not before H10: until then `https://exams.ro` still serves the old PHP site. | `/sitemap.xml` and the `og:image` URL on the deployment start with `https://exams.ro` |
-| A3 | H10, A1, A2 | Cutover verification: `curl -I https://exams.ro/` and `https://www.exams.ro/` (200 or a redirect to the apex, valid TLS), five subject pages opened by hand, three downloads, images loading on a phone off Wi-Fi and on Bogdan's Mac (his router blocks `r2.dev` but not `files.exams.ro`). | All pass; note the results in PROGRESS.md |
-| A4 | A1 | Stage 3 acceptance left unmeasured: Lighthouse performance ≥ 90, mobile, on a subject page. PageSpeed's anonymous quota was exhausted on 2026-09-07; retry with `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=<page>&strategy=mobile&category=performance`, or a Chrome performance trace from a network where the files host resolves. | Score recorded in PROGRESS.md; if below 90, act on the report |
+| A1 | H7b | Set  on Vercel (Production and Preview:  then value) and in . Redeploy. |  → 200, and a subject page on the deployment shows images from that host |
+| A2 | H10 | Set  on Vercel Production (the stored value is invalid today, so production falls back to the Vercel hostname: its sitemap lists ). Redeploy. Not before H10: until the record change  still serves the old PHP site. |  and the  URL on the deployment start with  |
+| A3 | H10, A1, A2 | Cutover verification: HTTP/2 200 
+x-powered-by: PHP/5.6.40
+content-type: text/html; charset=UTF-8
+date: Mon, 07 Sep 2026 03:44:11 GMT
+server: LiteSpeed
+alt-svc: h3=":443"; ma=2592000, h3-29=":443"; ma=2592000, h3-Q050=":443"; ma=2592000, h3-Q046=":443"; ma=2592000, h3-Q043=":443"; ma=2592000, quic=":443"; ma=2592000; v="43,46"
+
+ and  (200 or a redirect to the apex, valid TLS), five subject pages opened by hand, three downloads, images loading on a phone off Wi-Fi and on Bogdan's Mac (his router blocks  but not ). | All pass; note the results in PROGRESS.md |
+| A4 | A1 | Stage 3 acceptance left unmeasured: Lighthouse performance ≥ 90, mobile, on a subject page. PageSpeed's anonymous quota was exhausted on 2026-09-07; retry with , or a Chrome performance trace from a network where the files host resolves. | Score recorded in PROGRESS.md; if below 90, act on the report |
 | A5 | — | Lightbox keyboard check by hand: open a gallery, arrow keys move, Escape closes, focus returns to the thumbnail. | Noted in PROGRESS.md |
 | A6 | A3 | Docs: README and HUMAN-ACTIONS mention the live domain; PROGRESS marks Stage 6 done; update the memory notes. | Committed |
 
@@ -90,7 +103,7 @@ The table lists every such step, when it is needed, and what the human hands bac
 | H3 | **Vercel**: confirm the team is on the Hobby plan (Settings → Billing). Import the GitHub repo as a new project (Add New → Project). Framework preset Next.js, defaults otherwise. Let the first deploy fail if env vars are missing; that is expected. | Stage 6, but doing it right after H2 is fine | project name |
 | H4 | **Neon via Vercel**: in the Vercel project, Storage → Create Database → Neon → Free plan → connect to the project (all environments). Vercel injects `DATABASE_URL` and related vars. | Stage 1 | `DATABASE_URL` (copy from Vercel → Settings → Environment Variables, or run `vercel env pull .env.local` after H8) |
 | H5 | **Cloudflare account** and add the zone `exams.ro` on the Free plan. Cloudflare shows two nameservers. | Stage 2 for R2, cutover for DNS | nameserver names |
-| H6 | **Registrar**: change the nameservers of exams.ro to the two Cloudflare nameservers. Before doing this, note any existing DNS records at the old host (especially MX records if email on exams.ro is in use) and recreate them in Cloudflare DNS. Propagation takes up to 24 h. The old site keeps working during this time as long as the A record still points to the old host. | Cutover (Stage 6). Can be done early; it does not affect the old site. | confirmation |
+| H6 | ~~Registrar nameserver change~~ Not needed, see H5. Original text: change the nameservers of exams.ro to the two Cloudflare nameservers. Before doing this, note any existing DNS records at the old host (especially MX records if email on exams.ro is in use) and recreate them in Cloudflare DNS. Propagation takes up to 24 h. The old site keeps working during this time as long as the A record still points to the old host. | Cutover (Stage 6). Can be done early; it does not affect the old site. | confirmation |
 | H7 | **Cloudflare R2**: enable R2 (Cloudflare asks for a payment method even though the free tier is 0 €). Create bucket `exams-ro-files`, location Automatic or EU. In the bucket: Settings → Public access → Custom Domains → add `files.exams.ro` (works once H5 is done). Until H6 has propagated, also enable the "Public Development URL" (r2.dev) as a temporary base URL. Then R2 → Manage R2 API Tokens → Create token, permission **Object Read & Write**, scoped to this bucket. | Stage 2 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET=exams-ro-files`, `R2_PUBLIC_BASE_URL` (`https://files.exams.ro` or the temporary r2.dev URL) |
 | H8 | **Vercel CLI login on the machine**: run `vercel login` (interactive), then in the repo folder `vercel link` and pick the project. Optional but makes `vercel env pull` possible. | Stage 1 | linked project |
 | H9 | Put the values from H4 and H7 into `.env.local` in the repo (agent can do this if the values are pasted into the chat), and into Vercel → Settings → Environment Variables for Production and Preview (`vercel env add` works after H8). | Stage 2 locally, Stage 6 on Vercel | nothing |
