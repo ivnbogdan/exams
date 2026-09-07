@@ -4,6 +4,7 @@ import "./globals.css";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { env } from "@/lib/env";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 const mark = Silkscreen({ weight: ["400", "700"], subsets: ["latin"], variable: "--font-mark", display: "swap" });
 
@@ -24,7 +25,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ro" className={mark.variable}>
+    <html lang="ro" className={mark.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-screen font-sans antialiased">
         <a
           href="#continut"

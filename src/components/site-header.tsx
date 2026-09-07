@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 import { SearchBox } from "@/components/search/search-box";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV = [
   { href: "/an/1", label: "An I" },
@@ -25,6 +26,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <SearchBox />
+        <ThemeToggle className="order-3 ml-auto shrink-0 sm:order-4 sm:ml-0" />
       </div>
     </header>
   );

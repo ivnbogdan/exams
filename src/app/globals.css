@@ -22,8 +22,9 @@
   --brand-orange-strong: #c9820a;
 }
 
+/* Dark tokens: the system preference unless the user chose light, or an explicit dark choice. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --page: #121417;
     --paper: #1a1d21;
     --card: #22262b;
@@ -44,6 +45,26 @@
     --brand-orange-strong: #f3b03a;
   }
 }
+:root[data-theme="dark"] {
+    --page: #121417;
+    --paper: #1a1d21;
+    --card: #22262b;
+    --ink: #ececec;
+    --on-ink: #121417;
+    --ink-hover: #ffffff;
+    --soft: rgba(255, 255, 255, 0.78);
+    --muted: rgba(255, 255, 255, 0.62);
+    --faint: rgba(255, 255, 255, 0.5);
+    --line: rgba(255, 255, 255, 0.12);
+    --hover: rgba(255, 255, 255, 0.06);
+    --hover-strong: rgba(255, 255, 255, 0.12);
+    --brand-teal: #4cc0cc;
+    --brand-green: #8ad43f;
+    --brand-orange: #f3b03a;
+    --brand-red: #f0596a;
+    --brand-green-strong: #8ad43f;
+    --brand-orange-strong: #f3b03a;
+  }
 
 @theme inline {
   --color-page: var(--page);
@@ -69,6 +90,12 @@
 
 html {
   color-scheme: light dark;
+}
+html[data-theme="light"] {
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {
