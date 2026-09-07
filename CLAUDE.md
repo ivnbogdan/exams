@@ -2,7 +2,7 @@
 
 # exams.ro — notes for agents
 
-Read `docs/PLAN.md` before doing anything. Section 2 lists decisions that are final.
+Read `docs/PLAN.md` before doing anything: section 0 is the hand-over with the exact remaining steps (R1–R8) and the gotchas; section 2 lists decisions that are final.
 `docs/HUMAN-ACTIONS.md` lists what only the owner can do; if a step needs one of those, stop and ask.
 
 ## Data model in one breath

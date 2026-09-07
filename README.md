@@ -1,9 +1,9 @@
 # exams.ro
 
 Archive of exam subjects from Politehnica București, Facultatea de Automatică și Calculatoare.
-Read-only rebuild of the 2011 site. Next.js, Neon Postgres, Cloudflare R2, deployed on Vercel.
+Read-only rebuild of the 2011 site, live at https://exams.ro. Next.js, Neon Postgres, Cloudflare R2, deployed on Vercel.
 
-The plan that drives implementation is `docs/PLAN.md`. The owner's checklist is `docs/HUMAN-ACTIONS.md`.
+The plan that drives implementation is `docs/PLAN.md`; its section 0 is the current hand-over with the remaining steps. The owner's checklist is `docs/HUMAN-ACTIONS.md`; progress and evidence are in `docs/PROGRESS.md`.
 
 ## Local setup
 

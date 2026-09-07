@@ -10,42 +10,126 @@ Companion file: `docs/HUMAN-ACTIONS.md` is the checklist for the owner. Keep bot
 
 ---
 
-## 0. Status and remaining work (updated 2026-09-07, after checking live DNS)
+## 0. Status and remaining work (hand-over, updated 2026-09-07 evening)
 
-Stages 0 to 5 are done. The site is live on Vercel at https://exams-sooty.vercel.app with all
-content, files, search, the mark, dark mode and the hierarchical URLs.
+Read this section first; it supersedes the stage tables below for "what to do next". Sections 1 to 13
+remain the reference for how the system is built.
 
-Live DNS today: `exams.ro` already uses Cloudflare nameservers (`brad.ns.cloudflare.com`,
-`pat.ns.cloudflare.com`) in the same Cloudflare account that holds the R2 bucket. Inside the zone,
-`exams.ro` is an A record to the old host `81.181.252.2` (DNS only, not proxied) and `www` is a CNAME to
-`exams.ro`. So there is no nameserver change and no zone to create: the cutover is editing those two
-records. Email: the MX record points at `mail.exams.ro`, which resolves to the old host (81.181.252.2), as do `ftp`, `cpanel`, `webmail` and `autodiscover`. If anyone still receives email at an exams.ro address, that mailbox dies with the old hosting; move or drop the email before H11. If email is not used, leave those records alone until H11 and delete them then.
+### Where things are
 
-### HUMAN steps (owner), in order
+| Piece | Location / value |
+|---|---|
+| Live site | https://exams.ro (production, apex is primary; `www.exams.ro` redirects to it) |
+| Vercel | team `aptabase`, project `exams`; production alias also at https://exams-sooty.vercel.app; Git integration on `main`, every push deploys |
+| Repo | https://github.com/ivnbogdan/exams, branch `main`; local clone `~/repos/personal/exams` (linked with `vercel link`) |
+| Database | Neon Postgres, created through the Vercel Marketplace; `DATABASE_URL` in Preview+Production on Vercel and in `.env.local`; 88 courses, 708 subjects (45 hidden), 680 attachments; 2 migrations applied |
+| Files | Cloudflare R2 bucket `exams-ro-files` (account of the Cloudflare zone), 1,480 objects; public through the custom domain `https://files.exams.ro` (`R2_PUBLIC_BASE_URL` on Vercel and locally) |
+| DNS | zone `exams.ro` on Cloudflare (nameservers `brad`/`pat.ns.cloudflare.com`); `exams.ro` and `www` are DNS-only CNAMEs to the Vercel target `8fd192447c79c758.vercel-dns-017.com`; `files` is the proxied R2 record |
+| Source data | `~/repos/personal/exams-ro-export/` on Bogdan's Mac: the only copy of the 2011 export (SQL dump, JSON, 681 files). Never commit it. `EXPORT_DIR` in `.env.local` points at it |
+| Old hosting | gazduire.ro cPanel account `examscb`, still active, still serving the old PHP site if reached by IP `81.181.252.2`; no DNS points at it any more |
 
-| # | Step | Exact actions | Done when |
-|---|---|---|---|
-| ✅ H7b | Files domain (done 2026-09-07) | Cloudflare → R2 → bucket `exams-ro-files` → Settings → Public access → Custom Domains → Connect domain → `files.exams.ro`. Cloudflare adds the DNS record itself. | Status "Active" next to the domain. Then tell the agent → A1 |
-| ✅ H10 | Site domain (done 2026-09-07, apex primary, www → apex) | Vercel → project `exams` → Settings → Domains → add `exams.ro` and `www.exams.ro`; Vercel shows the records it wants. In Cloudflare → DNS → Records: edit the existing `A exams.ro 81.181.252.2` to the A value on Vercel's domain card (`76.76.21.21` unless the card shows another), and edit `www` from `CNAME exams.ro` to the CNAME target on the card for `www.exams.ro` (project-specific, of the form `xxxx.vercel-dns-0xx.com`), both with the proxy OFF (grey cloud). Touch nothing else: leave `MX`, `mail`, and any other records as they are. | Vercel shows "Valid Configuration" for both. Then tell the agent → A2, A3 |
-| H11 | Old hosting | After A3 passes and the email question is settled, cancel the gazduire.ro hosting and delete the now-dead `mail`, `ftp`, `cpanel`, `webmail`, `autodiscover` and MX records if unused. Keep `~/repos/personal/exams-ro-export/` as the permanent backup. | — |
-| H12 | Before v2 only | In Vercel → Settings → Environment Variables, re-enter the real `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` (the current values are placeholders; v1 never reads them). Delete `EXPORT_DIR`, which is local-only. | — |
+Stages 0 to 5 are complete; Stage 6 is complete except the items below. Acceptance evidence is in
+`docs/PROGRESS.md` (counts, Lighthouse 100/100/100 on the home page for accessibility, best
+practices and SEO; search acceptance queries; lightbox keyboard check; cutover checks from public DNS).
 
-Alternative for the record edits in H7b and H10: a Cloudflare API token scoped to Zone → DNS → Edit
-for `exams.ro`, handed to the agent, lets the agent make and verify the DNS changes itself. Adding
-the domain in Vercel stays a dashboard step.
+### Remaining steps
 
-### AGENT steps, in order
+Each step says who does it. "Agent" steps can be done by any agent with this repo, `.env.local`
+and the Vercel CLI login (`npx --yes vercel@latest whoami` must print `ivnbogdan`; if not, the owner
+runs `npx --yes vercel@latest login` first). Verification commands are included so nothing is taken
+on faith.
 
-| # | Waits on | Step | Done when |
-|---|---|---|---|
-| ✅ A1 | H7b (done 2026-09-07) | Set `R2_PUBLIC_BASE_URL=https://files.exams.ro` on Vercel (Production and Preview: `vercel env rm` then `printf value \| vercel env add`) and in `.env.local`. Redeploy. | `curl -I https://files.exams.ro/subjects/57/1-subeea.jpg` → 200, and a subject page on the deployment shows images from that host |
-| ✅ A2 | H10 (done 2026-09-07; variable cannot be sensitive on Vercel, fallback to the production domain gives the same result) | Set `NEXT_PUBLIC_SITE_URL=https://exams.ro` on Vercel Production (the stored value is invalid today, so production falls back to the Vercel hostname: its sitemap lists `exams-sooty.vercel.app`). Redeploy. Not before H10: until the record change `https://exams.ro` still serves the old PHP site. | `/sitemap.xml` and the `og:image` URL on the deployment start with `https://exams.ro` |
-| ✅ A3 | passed 2026-09-07 from public DNS | Cutover verification: `curl -I https://exams.ro/` and `https://www.exams.ro/` (200 or a redirect to the apex, valid TLS), five subject pages opened by hand, three downloads, images loading on a phone off Wi-Fi and on Bogdan's Mac (his router blocks `r2.dev` but not `files.exams.ro`). | All pass; note the results in PROGRESS.md |
-| A4 | A1 | Stage 3 acceptance left unmeasured: Lighthouse performance ≥ 90, mobile, on a subject page. PageSpeed's anonymous quota was exhausted on 2026-09-07; retry with `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=<page>&strategy=mobile&category=performance`, or a Chrome performance trace from a network where the files host resolves. | Score recorded in PROGRESS.md; if below 90, act on the report |
-| ✅ A5 | — | Lightbox keyboard check (done 2026-09-07): Enter on a thumbnail opens a modal dialog, ArrowRight moves to slide 2 of 12, Escape closes it and focus returns to the thumbnail. | Noted in PROGRESS.md |
-| A6 | A3 | Docs: README and HUMAN-ACTIONS mention the live domain; PROGRESS marks Stage 6 done; update the memory notes. | Committed |
+#### R1 — Cloudflare DNS cleanup (owner, 2 minutes)
+In Cloudflare → `exams.ro` → DNS → Records, delete the two `NS` records with name `exams.ro` and
+content `ns1.vercel-dns.com` / `ns2.vercel-dns.com`. They came from a Vercel banner that applies
+only when Vercel hosts the DNS, which it must not (the files domain needs Cloudflare). Cloudflare
+ignores them at the apex, so they are harmless, but a future reader will misinterpret them.
+Keep everything else: `exams.ro` CNAME and `www` CNAME (DNS only, grey cloud) and `files` (R2, proxied).
+Verify: `dig +short @1.1.1.1 exams.ro NS` still prints the two Cloudflare names, and
+`dig +short @1.1.1.1 exams.ro A` prints two Vercel addresses.
 
-Deliberately not done, no action needed: the optional Yanone Kaffeesatz heading font (system sans kept), a compact header variant of the mark (the full banner at 48 px reads fine), and the v2 outline in section 11.
+#### R2 — Make the www redirect permanent (owner, 1 minute)
+Vercel → project `exams` → Settings → Domains → card `www.exams.ro` → change "307 Temporary Redirect"
+to "308 Permanent Redirect" → Save. Verify: `curl -sI https://www.exams.ro/ | head -1` shows 308.
+
+#### R3 — Email on exams.ro (owner decision)
+Before the cutover the zone had `MX 0 mail.exams.ro` plus `mail`, `ftp`, `cpanel`, `webmail`,
+`autodiscover` A records, all pointing at the old host. They were removed during the H10 edit, so
+email addressed to `@exams.ro` has been undeliverable since 2026-09-07. Decide:
+- Email was not used → nothing to do.
+- Email is needed → either recreate `MX 0 mail.exams.ro` and `A mail.exams.ro 81.181.252.2` (DNS only)
+  until R4, then move the mailbox to another provider before cancelling the host; or set up a new
+  provider now and add its MX/TXT records. Do not cancel the old hosting (R4) before this is settled.
+
+#### R4 — Cancel the old hosting (owner, after R3)
+Cancel the gazduire.ro account `examscb`. Nothing else references it. Keep the export folder forever.
+Verify afterwards that https://exams.ro and https://files.exams.ro still work (they do not depend on it).
+
+#### R5 — Real R2 credentials on Vercel (owner or agent, needed before v2 only)
+What it is: the four variables `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
+`R2_BUCKET` exist on Vercel (Preview + Production, sensitive) but were entered in the first setup
+batch together with two values that turned out to be placeholders, so they are presumed placeholders
+too; they cannot be read back. v1 never uses them: the site only builds links from
+`R2_PUBLIC_BASE_URL`, and the seed ran locally from `.env.local`. v2 (uploads) will run server code on
+Vercel that signs browser uploads and generates thumbnails, and that code reads these four at runtime.
+How: the real values are in `.env.local` on Bogdan's Mac. Either paste them in Vercel → Settings →
+Environment Variables (edit each, Production and Preview, keep "sensitive"), or let an agent do it:
+```
+cd ~/repos/personal/exams
+for N in R2_ACCOUNT_ID R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY R2_BUCKET; do
+  V=$(grep "^$N=" .env.local | cut -d= -f2- | tr -d '"')
+  for E in production preview; do
+    npx --yes vercel@latest env rm "$N" "$E" --yes --scope aptabase
+    printf '%s' "$V" | npx --yes vercel@latest env add "$N" "$E" --scope aptabase
+  done
+done
+```
+(`--no-sensitive` is only for `NEXT_PUBLIC_*`; secrets stay sensitive.) Verify by deploying a
+temporary route that runs the same HeadBucket check as `scripts/r2-check.ts` and returns ok/fail
+without printing values, then remove it. Never print these values in logs or chat. Also delete
+`EXPORT_DIR` from Vercel; it is local-only.
+
+#### R6 — Mobile performance score on a subject page (agent)
+The one Stage 3 acceptance item never measured: Lighthouse performance ≥ 90, mobile, on a subject
+page with images, e.g. https://exams.ro/an/2/teoria-sistemelor/224. Google's anonymous PageSpeed
+quota rejected two attempts on 2026-09-07; retry on another day:
+```
+curl -s "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexams.ro%2Fan%2F2%2Fteoria-sistemelor%2F224&strategy=mobile&category=performance" \
+  | python3 -c "import sys,json;d=json.load(sys.stdin);r=d['lighthouseResult'];print(round(r['categories']['performance']['score']*100));[print(k,r['audits'][k]['displayValue']) for k in ['largest-contentful-paint','total-blocking-time','cumulative-layout-shift']]"
+```
+Or a Chrome performance trace from a network where `files.exams.ro` resolves (Bogdan's router
+does not; see gotchas). If below 90, the likely levers are: the lightbox and search JavaScript
+(load them only when needed with `next/dynamic`), thumbnail sizes (400 px WebP already), and font
+loading (Silkscreen is used only for the mark). Record the score in PROGRESS.md.
+
+#### R7 — Final docs and memory (agent, after R1–R4)
+README: replace the Vercel URL with https://exams.ro. PROGRESS.md: mark Stage 6 done. Memory notes
+under `~/.claude/projects/-Users-bogdan-ivanov-repos-personal/memory/` (`exams-ro-rebuild.md`,
+`exams-deploy-gotchas.md`): update the state line.
+
+#### R8 — v2: uploads (not started; owner must green-light)
+Prerequisites: R5, and an auth choice (Auth.js with Google/GitHub, or Clerk). Design in section 11
+"v2 outline". Reminders that came out of v1: the schema already has nullable `legacy_id` for new
+rows, `lost_files`, and a reserved `search` tsvector column; the search index is a `force-static`
+route that must switch to `revalidate` once content changes after build; browser uploads must go
+straight to R2 with signed URLs (Vercel functions cap request bodies at 4.5 MB).
+
+### Gotchas a new agent will hit (all verified in this project)
+- Bogdan's home router DNS (192.168.0.1) sinkholes `*.r2.dev` to 127.0.0.1 and answered the apex
+  `exams.ro` with an empty result for a while after the cutover. Public resolvers are fine. Verify
+  with `dig @1.1.1.1` and `curl --resolve host:443:<ip>`; suggest setting the Mac's DNS to 1.1.1.1.
+- Vercel env vars added in the dashboard are "sensitive": `vercel env pull` writes `[SENSITIVE]`, and
+  blank values fail builds with "Missing environment variable". `NEXT_PUBLIC_*` variables must be added
+  with `--no-sensitive`. `vercel link` overwrites `.env.local` (re-add `EXPORT_DIR` afterwards).
+- Use `npx --yes vercel@latest` inside a shell function; `pnpm dlx vercel` dies in pnpm's package
+  scanner on slow links, and zsh does not word-split `$VAR` holding a command or options
+  (`--resolve` must be passed as an array or literally).
+- Heredocs that contain backticks must be quoted (`<<'EOF'`), or the shell executes the code spans.
+- pnpm 11 needs `allowBuilds` in `pnpm-workspace.yaml` (esbuild is already listed); Next 16 needs
+  `next typegen` before `tsc` (the `typecheck` script does it).
+- Build-time DB access goes through `src/lib/db.ts`, which retries transient fetch errors; keep it
+  that way, 1,515 pages are generated per build.
+- Never run the seed's media phase with more than 3 workers on the Mac; six got OOM-killed.
 
 ---
 
@@ -84,7 +168,7 @@ Out of scope for v1: login, uploads, comments, moderation, admin UI, old-URL red
 
 ---
 
-## 3. HUMAN actions and accounts (the owner does these)
+## 3. HUMAN actions and accounts (historical; current status is in section 0)
 
 Agents cannot log into dashboards, accept terms, add payment methods or change DNS.
 The table lists every such step, when it is needed, and what the human hands back to the agent.

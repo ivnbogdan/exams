@@ -1,30 +1,23 @@
 # exams.ro rebuild — what only you can do
 
-Updated 2026-09-07 after checking live DNS. The site is live at https://exams-sooty.vercel.app.
-`exams.ro` is already on Cloudflare nameservers in your account, with an A record to the old host
-81.181.252.2. So the cutover is two record edits, no nameserver change. Do the steps in order and tell the
-agent after each one; it then runs its matching step.
+Updated 2026-09-07 evening. The site is live at https://exams.ro. Full details for every item are in
+`docs/PLAN.md` section 0 (steps R1–R8), including verification commands for the agents.
 
 ## Done
-- [x] H1 Node and pnpm on the machine
-- [x] H2 GitHub repo `ivnbogdan/exams`
-- [x] H3 Vercel project `exams` in team `aptabase`
-- [x] H4 Neon database through Vercel
-- [x] H5 Cloudflare zone for exams.ro (already existed)
-- [x] H6 Nameservers on Cloudflare (already the case)
-- [x] H7 Cloudflare R2 bucket `exams-ro-files`, API token, r2.dev development URL
-- [x] H8 `vercel login` and `vercel link`
-- [x] H9 values in `.env.local` and on Vercel
+H1 machine · H2 GitHub repo · H3 Vercel project · H4 Neon · H5/H6 Cloudflare zone and nameservers (pre-existing) ·
+H7 R2 bucket and token · H7b `files.exams.ro` · H8 Vercel CLI login · H9 env values · H10 domain on Vercel (apex primary).
 
-## Remaining, in order
+## Remaining
+- [ ] **R1** Cloudflare DNS: delete the two `NS exams.ro → ns1/ns2.vercel-dns.com` records. Keep everything else.
+- [ ] **R2** Vercel → Domains → `www.exams.ro`: change the redirect from 307 to 308.
+- [ ] **R3** Email: the MX and `mail` records were removed during the cutover, so `@exams.ro` mail is off. Decide: not needed (nothing to do) or recreate/move it before R4.
+- [ ] **R4** After R3: cancel the gazduire.ro hosting. Keep `~/repos/personal/exams-ro-export/` forever.
+- [ ] **R5** Before v2 only: real `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` on Vercel (values are in `.env.local`); an agent can do it with the command in PLAN.md R5. Delete `EXPORT_DIR` there.
+- [ ] **R8** When you want uploads: pick the auth provider and tell an agent to start v2 (PLAN.md section 11).
 
-- [x] **H7b Files domain (done 2026-09-07; A1 done, files served from files.exams.ro).** Cloudflare → R2 → `exams-ro-files` → Settings → Public access → Custom Domains → Connect domain → `files.exams.ro`. Cloudflare creates the DNS record. Wait for "Active". → tell the agent: it runs **A1**.
-- [x] **H10 Site domain (done 2026-09-07; apex is primary, www redirects to it).** Leftovers: delete the two `NS` records for `exams.ro` that point at `ns1/ns2.vercel-dns.com` in Cloudflare DNS (Cloudflare ignores them at the apex, they only confuse), and change the `www` redirect in Vercel from 307 to 308. Original text: Vercel → project `exams` → Settings → Domains → add `exams.ro` and `www.exams.ro`. Then in Cloudflare → DNS → Records: edit `A exams.ro` from `81.181.252.2` to the A value on Vercel's domain card (`76.76.21.21` unless the card shows another); edit `www` from `CNAME exams.ro` to the CNAME target the card shows for `www.exams.ro` (project-specific, like `xxxx.vercel-dns-0xx.com`); keep the cloud grey (DNS only) on both. Leave every other record alone. Wait for "Valid Configuration" in Vercel. → tell the agent: it runs **A2** and **A3**.
-- [ ] **Email decision.** Note: the MX and `mail` records disappeared from Cloudflare during the H10 edit, so email on exams.ro is already off; if it was in use, recreate them or move email now. the MX record points at `mail.exams.ro`, which resolves to the old host (81.181.252.2), as do `ftp`, `cpanel`, `webmail` and `autodiscover`. If anyone still receives email at an exams.ro address, that mailbox dies with the old hosting; move or drop the email before H11. If email is not used, leave those records alone until H11 and delete them then.
-- [ ] **H11 Old hosting.** Once the agent reports A3 green and the email question is settled, cancel the gazduire.ro hosting; delete the dead `mail`, `ftp`, `cpanel`, `webmail`, `autodiscover` and MX records if email is unused. Keep `~/repos/personal/exams-ro-export/` forever; it is the only copy of the original data.
-- [ ] **H12 Before v2 only.** On Vercel, replace the placeholder `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` with the real values (v1 never reads them), and delete `EXPORT_DIR`.
+Agent-only leftovers (no action from you): R6 mobile performance score, R7 final docs.
 
-Shortcut: a Cloudflare API token with Zone → DNS → Edit on `exams.ro`, given to the agent, lets it do
-the record edits in H7b and H10 and verify them. Adding the domain in Vercel stays yours.
+Tip for your own machine: your router's DNS blocks `r2.dev` and lagged on the new records; putting
+`1.1.1.1` first in the Mac's DNS settings fixes both.
 
-Monthly cost when done: 0.
+Monthly cost: 0.

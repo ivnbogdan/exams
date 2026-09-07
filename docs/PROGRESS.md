@@ -14,7 +14,7 @@ Agents: update this file at the end of every stage. Owner: the HUMAN items are i
 
 Human actions completed: H1, H2, H3, H4, H5, H6 (exams.ro was already on Cloudflare nameservers), H7, H8, H9.
 
-## Remaining (exact list lives in PLAN.md section 0)
-- Human: ~~H7b~~ done → ~~H10~~ done 2026-09-07 (apex primary, www 307-redirects to it; two stray NS records to delete in Cloudflare; MX/mail records were removed during the edit) add the domain in Vercel and edit the existing `A exams.ro` (81.181.252.2) and `www` records in Cloudflare (DNS only) → settle email on exams.ro (MX → `mail.exams.ro` at the old host) → H11 cancel old hosting → H12 real R2 keys on Vercel before v2.
-- Agent: ~~A1~~ done 2026-09-07 (files.exams.ro live, Vercel + local env switched, redeployed) → ~~A2~~ done 2026-09-07 (production canonical base is https://exams.ro; the variable cannot be stored as sensitive, the fallback to the production domain covers it) → ~~A3~~ passed 2026-09-07 from the public internet (apex 200 + TLS, www 307 → apex, five subject pages, three downloads from files.exams.ro); Bogdan's router still answers the apex with an empty result, a local resolver issue → A4 mobile performance score on a subject page (PageSpeed daily quota still exhausted on 2026-09-07 after two tries; retry another day) → ~~A5~~ lightbox keyboard check done 2026-09-07: modal dialog, arrows navigate, Escape closes, focus returns to the thumbnail → A6 docs.
-- Verified on 2026-09-07: Stage 4 acceptance queries (protocoale, sinteza elementara, tapus 2015, 321CA, restante analiza, a typo query) all return the expected top results against the live index.
+## Remaining (exact list with commands: PLAN.md section 0, steps R1–R8)
+- Owner: R1 delete stray NS records in Cloudflare · R2 www redirect 307→308 · R3 email decision (MX/mail records were removed on 2026-09-07) · R4 cancel old hosting · R5 real R2 keys on Vercel before v2 · R8 green-light v2.
+- Agent: R6 mobile performance score on a subject page (PageSpeed quota blocked it on 2026-09-07) · R7 final docs and memory after R1–R4.
+- Done on 2026-09-07: H7b + A1 (files.exams.ro live), H10 + A2 + A3 (exams.ro primary, www redirects, canonical base https://exams.ro, downloads verified), A5 lightbox keyboard check, Stage 4 acceptance queries.
